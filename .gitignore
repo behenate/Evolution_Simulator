@@ -1,0 +1,21 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+.name
+build/
+
+/.gradle/7.1/fileHashes/
+/.gradle/
+.gradle
+/.idea/
+/.gradle/
+.gradle/7.1/executionHistory/executionHistory.bin
+.gradle/7.1/executionHistory/executionHistory.bin
+.gradle/7.1/executionHistory/executionHistory.lock
+.gradle/7.1/executionHistory/executionHistory.bin
+*.lock
