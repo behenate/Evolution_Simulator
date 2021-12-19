@@ -1,7 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.objects;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import agh.ics.oop.dataTypes.Vector2d;
 
 /**
  * The interface responsible for interacting with the map of the world.
@@ -47,4 +46,5 @@ public interface IWorldMap {
      * @return Object or null if the position is not occupied.
      */
     Object objectAt(Vector2d position);
+    int[] getMapProps();
 }

@@ -1,4 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.dataTypes;
+
+import agh.ics.oop.dataTypes.MoveDirection;
 
 import java.util.ArrayList;
 import java.util.Arrays;

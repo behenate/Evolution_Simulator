@@ -1,12 +1,10 @@
-package agh.ics.oop;
+package agh.ics.oop.objects;
 
-import javafx.scene.control.Label;
+import agh.ics.oop.dataTypes.Vector2d;
 import javafx.scene.image.Image;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 public class Grass extends AbstractWorldMapElement {
+    private Image image = new Image("grass_proj.png");
     public Grass(Vector2d position){
         this.position = position;
     }
@@ -15,7 +13,7 @@ public class Grass extends AbstractWorldMapElement {
         return "*";
     }
     @Override
-    public String getImagePath(){
-        return "src/main/resources/grass.png";
+    public Image getImage(){
+        return image;
     }
 }

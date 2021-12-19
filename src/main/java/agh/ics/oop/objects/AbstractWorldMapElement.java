@@ -1,10 +1,11 @@
-package agh.ics.oop;
+package agh.ics.oop.objects;
 
-import javafx.scene.control.Label;
+import agh.ics.oop.simulation.IPositionChangeObserver;
+import agh.ics.oop.dataTypes.Vector2d;
 
 import java.util.ArrayList;
 
-public abstract class AbstractWorldMapElement implements IMapElement{
+public abstract class AbstractWorldMapElement implements IMapElement {
     protected ArrayList<IPositionChangeObserver> observers = new ArrayList<>();
     protected Vector2d position;
     public Vector2d getPosition(){
@@ -16,9 +17,9 @@ public abstract class AbstractWorldMapElement implements IMapElement{
     public void removeObserver(IPositionChangeObserver observer){
         observers.remove(observer);
     }
-    protected void positionChanged(Vector2d oldPosition,Vector2d newPosition ){
+    protected void positionChanged(IMapElement element,Vector2d newPosition ){
         for (IPositionChangeObserver observer: observers) {
-            observer.positionChanged(oldPosition, newPosition);
+            observer.positionChanged(element, newPosition);
         }
     }
 
