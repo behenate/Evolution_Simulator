@@ -21,23 +21,27 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected int jungleHeight;
     protected int jungleX;
     protected int jungleY;
+    protected int size;
+    protected int gridCellSize;
     protected final CustomHashMap mapElements = new CustomHashMap();
     protected final MapVisualizer visualizer = new MapVisualizer(this);
 
-    public AbstractWorldMap(int width,int height,float jungleRatio){
+    public AbstractWorldMap(int width,int height,float jungleRatio, int size){
         this.width = width;
         this.height = height;
         this.jungleWidth = Math.round(width*(float)Math.sqrt(jungleRatio));
         this.jungleHeight = Math.round(height*(float)Math.sqrt(jungleRatio));
         this.jungleX = (width-jungleWidth)/2;
         this.jungleY = (height-jungleHeight)/2;
+        this.size = size;
+        this.gridCellSize = Math.min(size/width, size/height);
     }
     public boolean place(Animal animal) throws IllegalArgumentException {
         if (!canMoveTo(animal.getPosition())){
             throw new IllegalArgumentException("Pole " + animal.getPosition() + " nie jest dobrym polem dla zwierzaka!");
         }
         animal.addObserver(this);
-        mapElements.cput(animal.getPosition(), animal);
+        mapElements.cPut(animal.getPosition(), animal);
         return true;
     }
 
@@ -54,15 +58,18 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public boolean isOccupied(Vector2d position) {
         return mapElements.get(position) != null;
     }
-
+    public boolean isOccupiedByAnimal(Vector2d position){
+        //If there is a strongest animal on chosen field, that means that the field is occupied
+        return mapElements.getStrongest(position).size() != 0;
+    }
     public String toString() {
         return visualizer.draw(new Vector2d(0,0), new Vector2d(width, height));
     }
 
     @Override
     public void positionChanged(IMapElement element, Vector2d newPosition) {
-        mapElements.cremove(element.getPosition(), element);
-        mapElements.cput(newPosition, element);
+        mapElements.cRemove(element.getPosition(), element);
+        mapElements.cPut(newPosition, element);
     }
     //Zamienia realną pozycję czegoś na odpowiednią pozycję na mapie
     private Vector2d flipPos(Vector2d pos){
@@ -71,17 +78,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     public void renderGrid(GridPane gridPane, int size){
         gridPane.setGridLinesVisible(true);
-        Label newLabel = new Label("y/x");;
+        Label newLabel = new Label("y/x");
         gridPane.add(newLabel, 0,0,1, 1);
         GridPane.setHalignment(newLabel, HPos.CENTER);
         gridPane.getColumnConstraints().clear();
         gridPane.getRowConstraints().clear();
-        int cellSize = Math.min(size/width, size/height);
+
         for (int i = 0; i < width+1; i++) {
-            gridPane.getColumnConstraints().add(new ColumnConstraints(cellSize));
+            gridPane.getColumnConstraints().add(new ColumnConstraints(gridCellSize));
         }
         for (int i = 0; i < height+1; i++){
-            gridPane.getRowConstraints().add(new RowConstraints(cellSize));
+            gridPane.getRowConstraints().add(new RowConstraints(gridCellSize));
         }
 
         for (int i = 0; i < width; i++){
@@ -98,12 +105,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         for (Vector2d key: mapElements.keySet()) {
             IMapElement toRender;
             ArrayList<Animal> strongestAnimals = mapElements.getStrongest(key);
-            toRender = strongestAnimals.size()==0 ? null : strongestAnimals.get(0);
-            if (toRender == null){
-                toRender = mapElements.grassAt(key);
-            }
+            toRender = strongestAnimals.size()==0 ? mapElements.grassAt(key) : strongestAnimals.get(0);
             Vector2d posFixed = flipPos(key);
-            GuiElementBox guiBox = new GuiElementBox(toRender, "",cellSize );
+            GuiElementBox guiBox = toRender.getGuiElementBox();
             gridPane.add(guiBox.getVBox(), posFixed.x + 1, posFixed.y,1, 1);
             GridPane.setHalignment(newLabel, HPos.CENTER);
         }
@@ -114,10 +118,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return new int[]{width, height, jungleHeight, jungleHeight};
     }
 
-
-    public void placeGrassJungle(int n){
+    public int placeGrassJungle(int n){
         if (n==0)
-            return;
+            return 0;
         int x = Utils.getRandomNumber(jungleX, jungleX+jungleWidth);
         int y = Utils.getRandomNumber(jungleY, jungleY+jungleHeight);
         int placeTryCounter = 0;
@@ -140,19 +143,19 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
         if (!isOccupied(new Vector2d(x,y))) {
-            mapElements.cput(new Vector2d(x,y), new Grass(new Vector2d(x,y)));
-            placeGrassJungle(n-1);
+            mapElements.cPut(new Vector2d(x,y), new Grass(new Vector2d(x,y), this));
+            return  1 + placeGrassJungle(n-1);
         }
+        return 0;
     }
-    public void placeGrassSteppe(int n){
+    public int placeGrassSteppe(int n){
         if (n==0)
-            return;
+            return 0;
         int x = Utils.getRandomNumber(0, width);
         int y = Utils.getRandomNumber(0, height);
         int placeTryCounter = 0;
         if (x>= jungleX && x <jungleWidth+x && y>= jungleY && y < jungleY+jungleWidth){
-            placeGrassSteppe(n);
-            return;
+            return placeGrassSteppe(n);
         }
         while (isOccupied(new Vector2d(x,y)) && placeTryCounter <= 10){
             x = Utils.getRandomNumber(0, width);
@@ -177,9 +180,16 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
         if (!isOccupied(new Vector2d(x,y))){
-            mapElements.cput(new Vector2d(x,y), new Grass(new Vector2d(x,y)));
-            placeGrassSteppe(n-1);
+            mapElements.cPut(new Vector2d(x,y), new Grass(new Vector2d(x,y), this));
+            return 1 +placeGrassSteppe(n-1);
         }
+        return 0;
+    }
+    public int getWidth(){
+        return this.width;
+    }
+    public int getHeight(){
+        return this.height;
     }
 
 }

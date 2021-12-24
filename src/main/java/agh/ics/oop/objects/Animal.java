@@ -1,51 +1,65 @@
 package agh.ics.oop.objects;
 
 import agh.ics.oop.Utils;
+import agh.ics.oop.dataTypes.Genome;
+import agh.ics.oop.dataTypes.LinkedImageView;
 import agh.ics.oop.dataTypes.Vector2d;
-import com.sun.javafx.UnmodifiableArrayList;
+import agh.ics.oop.gui.GuiElementBox;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class Animal extends AbstractWorldMapElement {
-    private final IWorldMap map;
     private int mapDirection;
     private final int[][] directionVectors = {{0,1}, {1,1}, {1,0}, {1,-1}, {0, -1}, {-1,-1},{-1,0}, {-1,1}};
-    private final Image[] images = new Image[8];
-    private final int[] genotype = new int[32];
+    private final LinkedImageView healthBarImageView = new LinkedImageView(Utils.healthBarImage, this);
+    private Genome genome = new Genome(new int[32]);
     private int energy;
+    private int startEnergy;
     private final int moveCost;
     private final int birthEpoch;
+    private final Animal father;
+    private final Animal mother;
     private final String name = Utils.getRandomAnimalName();
     private boolean descendandOfTracked = false;
     ArrayList<Animal> children = new ArrayList<>();
-    public Animal(IWorldMap map, Vector2d initialPosition, int startEnergy, int moveCost, Animal father, Animal mother, int birthEpoch){
+    public Animal(AbstractWorldMap map, Vector2d initialPosition, int startEnergy,
+                  int moveCost, Animal father, Animal mother, int birthEpoch, Genome genome){
+        super(initialPosition, map);
         this.birthEpoch = birthEpoch;
         this.energy = startEnergy;
-        this.map = map;
         this.moveCost = moveCost;
-        this.position = initialPosition;
+        this.startEnergy = startEnergy;
+        this.father = father;
+        this.mother = mother;
+
         mapDirection = Utils.getRandomNumber(0, 8);
-        for (int i = 0; i < 8; i++) {
-            images[i] = new Image(String.format("%d.png", i));
-        }
-        if (father != null && mother != null){
-            generateGenotype(father, mother);
+        this.guiElementBox = new GuiElementBox(this, map.gridCellSize);
+
+        int[] genomeArr = new int[32];
+
+        if (genome != null){
+            this.genome = genome;
+        }else if (father != null && mother != null){
+            generateGenome(father, mother);
             this.energy = (int) (father.getEnergy() * 0.25 + mother.getEnergy() * 0.25);
             father.addEnergy((int)(-father.getEnergy() * 0.25));
             mother.addEnergy((int)(-mother.getEnergy() * 0.25));
             father.addChild(this);
             mother.addChild(this);
         }else {
-            for (int i = 0; i < genotype.length; i++) {
-                genotype[i] = Utils.getRandomNumber(0 ,8);
+            for (int i = 0; i < genomeArr.length; i++) {
+                genomeArr[i] = Utils.getRandomNumber(0 ,8);
             }
+            Arrays.sort(genomeArr);
+            this.genome = new Genome(genomeArr);
         }
     }
     public void genotypeMove(){
-        int moveIdx = Utils.getRandomNumber(0, genotype.length);
-        move(genotype[moveIdx]);
+        int moveIdx = Utils.getRandomNumber(0, genome.getGenomeArr().length);
+        move(genome.getGenomeArr()[moveIdx]);
     }
     public void move(int direction){
         Vector2d newPos = position;
@@ -69,28 +83,29 @@ public class Animal extends AbstractWorldMapElement {
         this.energy -= this.moveCost;
     }
 
-    private void generateGenotype(Animal father, Animal mother){
+    private void generateGenome(Animal father, Animal mother){
         Animal stronger = (father.getEnergy() > mother.getEnergy()) ? father : mother;
         Animal weaker = (father.getEnergy() <= mother.getEnergy()) ? father : mother;
-
+        int[] genomeArr = genome.getGenomeArr();
         int side = Utils.getRandomNumber(0,2);
-        int genesFromStronger = Math.round((float)stronger.getEnergy() / (stronger.getEnergy() + weaker.getEnergy()) * genotype.length);
+        int genesFromStronger = Math.round((float)stronger.getEnergy() /
+                (stronger.getEnergy() + weaker.getEnergy()) * genomeArr.length);
         int i = 0;
         int iter_dir = 1;
         if (side == 1){
-            i = genotype.length-1;
+            i = genomeArr.length-1;
             iter_dir = -1;
         }
         for (int j = 0; j < genesFromStronger; j++) {
-            genotype[j] = stronger.getGenotype()[i];
-            System.out.print(stronger.getGenotype()[i]);
+            genomeArr[j] = stronger.getGenome().getGenomeArr()[i];
             i += iter_dir;
 
         }
-        for (int j = genesFromStronger; j < genotype.length; j++) {
-            genotype[j] = weaker.getGenotype()[i];
+        for (int j = genesFromStronger; j < genome.getGenomeArr().length; j++) {
+            genomeArr[j] = weaker.getGenome().getGenomeArr()[i];
             i+= iter_dir;
         }
+        Arrays.sort(genomeArr);
 //        Żeby nie liczyć zbyt wielu dzieci, dziecko jest przypisane do silniejszego rodzica
     }
 
@@ -102,37 +117,37 @@ public class Animal extends AbstractWorldMapElement {
     }
 
     public void die(int epoch){
-        System.out.println("Ugh i died on: " + epoch);
+        return;
     }
     @Override
     public Image getImage() {
-        return  images[mapDirection];
+        return  Utils.animalImages[mapDirection];
     }
+    public LinkedImageView getHealthBarImageView(){return healthBarImageView;};
     public int getEnergy(){
         return energy;
     }
     public void addEnergy(int value){
         energy += value;
     }
-    public int[] getGenotype(){
-        return genotype;
+    public Genome getGenome(){
+        return genome;
     }
     public String getGenotypeString(){
-        StringBuilder str = new StringBuilder();
-        for (int i = 0; i < genotype.length; i++) {
-            str.append(genotype[i]);
-        }
-        return str.toString();
+        return genome.getGenomeString();
     }
     public ArrayList<Animal> getChildren(){
         return this.children;
     }
+
     public void setPosition(Vector2d position){
         this.position = position;
     }
+
     public void addChild(Animal child){
         this.children.add(child);
     }
+
     public String getName(){
         return this.name;
     }
@@ -140,5 +155,23 @@ public class Animal extends AbstractWorldMapElement {
         return birthEpoch;
     }
 
+    public void highlight(){
+        guiElementBox.highlight();
+    }
 
+    public void deHighlight(){
+        guiElementBox.deHighlight();
+    }
+    public Animal getFather(){
+        return father;
+    }
+    public Animal getMother(){
+        return mother;
+    }
+    public float getEnergyPercentage(){
+        if (this.energy <= 0 ){
+            return 0;
+        }
+        return (float)this.energy/this.startEnergy;
+    }
 }

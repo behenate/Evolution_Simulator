@@ -1,12 +1,15 @@
 package agh.ics.oop.simulation;
 
+import agh.ics.oop.Utils;
 import agh.ics.oop.dataTypes.CustomHashMap;
+import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.MoveDirection;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.gui.AnimalStatsTracker;
 import agh.ics.oop.gui.StatsChartManager;
 import agh.ics.oop.objects.*;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 
 public class SimulationEngine implements IEngine, Runnable {
@@ -17,12 +20,14 @@ public class SimulationEngine implements IEngine, Runnable {
     private final Integer moveDelay;
     private boolean isSuspended = false;
     private int epoch = 0;
-    private int plantEnergy;
-    private int moveCost;
-    private int startEnergy;
-    private StatsChartManager statsChartManager;
-    private AnimalStatsTracker animalStatsTracker;
-    public SimulationEngine(AbstractWorldMap map, Vector2d[] initialPositions, Integer moveDelay, int startEnergy,
+    private final int plantEnergy;
+    private final int moveCost;
+    private final int startEnergy;
+    private final boolean isMagical;
+    private int magicSpawns = 0;
+    private final StatsChartManager statsChartManager;
+    private final AnimalStatsTracker animalStatsTracker;
+    public SimulationEngine(AbstractWorldMap map, int startAnimals, Integer moveDelay,int startGrass, int startEnergy,
                             int moveCost, int plantEnergy, boolean isMagical, StatsChartManager statsChartManager,
                             AnimalStatsTracker animalStatsTracker) {
         this.moveDelay = moveDelay;
@@ -33,12 +38,19 @@ public class SimulationEngine implements IEngine, Runnable {
         this.startEnergy = startEnergy;
         this.statsChartManager = statsChartManager;
         this.animalStatsTracker = animalStatsTracker;
-        for (Vector2d position : initialPositions) {
-            Animal animal = new Animal(map, position, startEnergy, moveCost, null, null, 0);
-            animals.add(animal);
-            map.place(animal);
+        this.isMagical = isMagical;
+
+        for (int i = 0; i < startAnimals; i++) {
+            Animal newAnimal  = generateAnimalAtRandomPos(map, startEnergy, moveCost, null, null, 0, null);
+            if (newAnimal != null){
+                statsChartManager.readDataOnAnimalBirth(newAnimal);
+                animals.add(newAnimal);
+                map.place(newAnimal);
+            }
         }
-//        animals.add(new Animal(map, new Vector2d(0,0), 100,1, (Animal) animals.get(0), (Animal) animals.get(1)));
+//        Add the initial grass to the map and increment the grass counter
+        statsChartManager.addPlantCount(map.placeGrassSteppe(startGrass/2));
+        statsChartManager.addPlantCount(map.placeGrassJungle(startGrass/2));
     }
 
     @Override
@@ -46,11 +58,12 @@ public class SimulationEngine implements IEngine, Runnable {
         int animalIndex = 0;
         int movesCnt = 1;
 
-        for (int i = 0; i < 30000; i++) {
+        while(true) {
             statsChartManager.resetEpochStats();
 
             if (animals.size() > 0 && movesCnt % animals.size() == 0) {
                 animalsDie(epoch);
+                checkMagical();
             }
 
             if (animals.size() > 0) {
@@ -64,17 +77,15 @@ public class SimulationEngine implements IEngine, Runnable {
                 if (animals.size() > 0) {
                     animalsEat();
                     animalsReproduce();
+                    checkMagical();
                 }
-                map.placeGrassJungle(1);
-                map.placeGrassSteppe(1);
+//                Place the grass and add to the counter
+                statsChartManager.addPlantCount(map.placeGrassJungle(1));
+                statsChartManager.addPlantCount(map.placeGrassSteppe(1));
 
-                for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
-                    for (IMapElement element: elements) {
-                        if (element instanceof Animal)
-                            statsChartManager.readAliveAnimalData((Animal) element);
-                        else if (element instanceof Grass)
-                            statsChartManager.addPlantCount();
-                    }
+//                Read data from alive animals
+                for (IMapElement element: animals) {
+                    statsChartManager.readAliveAnimalData((Animal) element);
                 }
                 statsChartManager.chartUpdate(epoch);
                 epoch += 1;
@@ -82,6 +93,11 @@ public class SimulationEngine implements IEngine, Runnable {
                     Thread.sleep(moveDelay);
                     for (IMapChangeObserver observer : observers) {
                         observer.mapChanged();
+                    }
+                    synchronized (this){
+                        while (isSuspended){
+                            wait();
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -124,6 +140,7 @@ public class SimulationEngine implements IEngine, Runnable {
                 if (animals.size() > 0) {
                     keysToRemove.add(key);
                     grassToRemove.add(grassAtKey);
+                    statsChartManager.addPlantCount(-1);
                 }
             }
         }
@@ -141,7 +158,8 @@ public class SimulationEngine implements IEngine, Runnable {
                 continue;
             newAnimalsPositions.add(key);
 //            Energia -1 oznacza aby podkraść energię rodzicom
-            Animal newAnimal = new Animal(map, key, -1, moveCost, twoStrongest.get(0), twoStrongest.get(1), epoch);
+            Animal newAnimal = new Animal(map, key, startEnergy, moveCost, twoStrongest.get(0), twoStrongest.get(1), epoch, null);
+            statsChartManager.readDataOnAnimalBirth(newAnimal);
             animalStatsTracker.updateOnNewborn(twoStrongest.get(0), twoStrongest.get(1), newAnimal);
             newAnimals.add(newAnimal);
         }
@@ -150,16 +168,36 @@ public class SimulationEngine implements IEngine, Runnable {
             map.place((Animal) animal);
         }
     }
-
+    public void checkMagical(){
+        if (animals.size() == 5 && isMagical && magicSpawns < 3){
+            ArrayList<Animal> newAnimals = new ArrayList<>();
+            for (IMapElement obj: animals) {
+                Animal animal = (Animal) obj;
+                Animal newAnimal = generateAnimalAtRandomPos(map,startEnergy, moveCost, animal.getFather(), animal.getMother(), epoch, animal.getGenome());
+                if (newAnimal != null){
+                    newAnimals.add(newAnimal);
+                }
+            }
+            for (Animal newAnimal: newAnimals) {
+                statsChartManager.readDataOnAnimalBirth( newAnimal);
+                animals.add(newAnimal);
+                map.place( newAnimal);
+            }
+            magicSpawns += 1;
+        }
+    }
+    public void suspend() {
+        this.isSuspended = true;
+    }
     public boolean isSuspended() {
         return isSuspended;
     }
 
-    public void suspend() {
-        this.isSuspended = true;
-    }
 
     public void resume() {
+        synchronized (this){
+            notify();
+        }
         this.isSuspended = false;
     }
 
@@ -169,6 +207,37 @@ public class SimulationEngine implements IEngine, Runnable {
 
     public void setMoveArray(ArrayList<MoveDirection> moveArray) {
         this.moveArray = moveArray;
+    }
+
+    private Animal generateAnimalAtRandomPos(AbstractWorldMap map, int startEnergy, int moveCost, Animal father,
+                                             Animal mother, int birthEpoch, Genome genome){
+        int x = Utils.getRandomNumber(0, map.getWidth());
+        int y = Utils.getRandomNumber(0, map.getHeight());
+        int tryCounter = 0;
+//        Try to get a random unoccupied position 15 times
+        while (map.isOccupiedByAnimal(new Vector2d(x, y)) && tryCounter < 15){
+            x = Utils.getRandomNumber(0, map.getWidth());
+            y = Utils.getRandomNumber(0, map.getHeight());
+            tryCounter++;
+        }
+//        If failed to find one get the first free postition
+        if (tryCounter == 15){
+            for (int i = 0; i < map.getHeight(); i++) {
+                for (int j = 0; j < map.getWidth(); j++) {
+                    if (!map.isOccupiedByAnimal(new Vector2d(i,j)));{
+                        return new Animal(map, new Vector2d(j, i), startEnergy, moveCost, father, mother, birthEpoch, genome);
+                    }
+                }
+            }
+        }else
+            return new Animal(map, new Vector2d(x, y), startEnergy, moveCost, father, mother, birthEpoch, genome);
+        return null;
+    }
+    public int getMagicSpawns(){
+        return magicSpawns;
+    }
+    public boolean isMagical(){
+        return isMagical;
     }
 }
 

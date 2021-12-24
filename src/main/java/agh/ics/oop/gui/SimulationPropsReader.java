@@ -1,5 +1,6 @@
 package agh.ics.oop.gui;
 
+import agh.ics.oop.Utils;
 import agh.ics.oop.objects.AbstractWorldMap;
 import agh.ics.oop.objects.IWorldMap;
 import agh.ics.oop.objects.RolledMap;
@@ -14,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import jdk.jshell.execution.Util;
 
 class SimulationPropsSubReader {
     private final VBox mainContainer = new VBox();
@@ -99,7 +101,8 @@ public class SimulationPropsReader {
         AbstractWorldMap map = new WallMap(
                 wallMapProps.getMapWidth(),
                 wallMapProps.getMapHeight(),
-                wallMapProps.getJungleRatio()
+                wallMapProps.getJungleRatio(),
+                (int) (Utils.windowWidth*0.3)
         );
         return new Simulation(
                 map,
@@ -116,7 +119,8 @@ public class SimulationPropsReader {
         AbstractWorldMap map = new RolledMap(
                 rolledMapProps.getMapWidth(),
                 rolledMapProps.getMapHeight(),
-                rolledMapProps.getJungleRatio()
+                rolledMapProps.getJungleRatio(),
+                (int) (Utils.windowWidth*0.3)
         );
         return new Simulation(
                 map,

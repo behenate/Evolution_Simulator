@@ -5,10 +5,13 @@ import agh.ics.oop.objects.Grass;
 import agh.ics.oop.objects.IMapElement;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement>> {
-    public void cput(Vector2d position, IMapElement element) {
+// Modified HashMap, which uses ArrayList in order to store multiple elements at positions
+public class CustomHashMap extends HashMap<Vector2d, ArrayList<IMapElement>> {
+//    Add an element to the array list at the position
+    public void cPut(Vector2d position, IMapElement element) {
         if (this.get(position) != null) {
             ArrayList<IMapElement> arr = this.get(position);
             arr.add(element);
@@ -18,8 +21,8 @@ public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement
             this.put(position, arr);
         }
     }
-
-    public void cremove(Vector2d position, IMapElement element) {
+//  Remove element from an array at the specified position
+    public void cRemove(Vector2d position, IMapElement element) {
         if (this.get(position) != null) {
             ArrayList<IMapElement> arr = this.get(position);
             arr.remove(element);
@@ -28,13 +31,15 @@ public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement
             }
         }
     }
-
+// Finds the strongest animal at the provided position
     public ArrayList<Animal> getStrongest(Vector2d position) {
         ArrayList<IMapElement> elements = this.get(position);
-        if (elements == null)
-            return null;
         ArrayList<Animal> strongestAnimals = new ArrayList<>();
-        int highestEnergy = -1;
+//        Return empty ArrayList if there are no animals at the position
+        if (elements == null)
+            return strongestAnimals;
+
+        int highestEnergy = -9999;
         for (IMapElement element : elements) {
             if (element instanceof Animal) {
                 if (highestEnergy < ((Animal) element).getEnergy()) {
@@ -48,6 +53,7 @@ public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement
         return strongestAnimals;
     }
 
+//    Fids the two strongest animal
     public ArrayList<Animal> getTwoStrongest(Vector2d position){
         ArrayList<IMapElement> elements = this.get(position);
         if (elements == null)
@@ -73,6 +79,8 @@ public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement
         }
         return strongestAnimals;
     }
+
+//    Check if grass at position exists, if so return it.
     public Grass grassAt(Vector2d position) {
         ArrayList<IMapElement> elements = this.get(position);
         for (IMapElement element : elements) {
@@ -83,16 +91,17 @@ public class CustomHashMap extends LinkedHashMap<Vector2d, ArrayList<IMapElement
         return null;
     }
 
-
+//  Removes all provided elements from provided positions
     public void removeAll(ArrayList<Vector2d> keys, ArrayList<IMapElement> elements) {
         for (int i = 0; i < keys.size(); i++) {
-            this.cremove(keys.get(i), elements.get(i));
+            this.cRemove(keys.get(i), elements.get(i));
         }
     }
 
+//    Adds all provided elements at provided positons
     public void putAll(ArrayList<Vector2d> keys, ArrayList<IMapElement> elements) {
         for (int i = 0; i < keys.size(); i++) {
-            this.cput(keys.get(i), elements.get(i));
+            this.cPut(keys.get(i), elements.get(i));
         }
     }
 }

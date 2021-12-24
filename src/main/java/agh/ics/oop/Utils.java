@@ -5,11 +5,14 @@ import javafx.scene.image.Image;
 public class Utils {
     public static int windowWidth;
     public static int windowHeight;
-    public static Image[] animalImages;
-    public static Image grassImage = new Image("grass_proj.jpg");
-    public Utils(){
+    public static final Image[] animalImages = new Image[8];
+    public static Image grassImage;
+    public static Image healthBarImage;
+    public static void loadImages(){
+        grassImage = new Image("grass_proj.png");
+        healthBarImage = new Image("healthBar.png");
         for (int i = 0; i < 8; i++) {
-            animalImages[i] = new Image(i +".jpg");
+            animalImages[i] = new Image(i +".png");
         }
     }
     public static int getRandomNumber(int min, int max) {
