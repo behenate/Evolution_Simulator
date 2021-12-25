@@ -11,22 +11,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+// Class describing an Animal on the map
 public class Animal extends AbstractWorldMapElement {
     private int mapDirection;
+//    Define moves based on animal direction
     private final int[][] directionVectors = {{0,1}, {1,1}, {1,0}, {1,-1}, {0, -1}, {-1,-1},{-1,0}, {-1,1}};
-    private final LinkedImageView healthBarImageView = new LinkedImageView(Utils.healthBarImage, this);
+
     private Genome genome = new Genome(new int[32]);
     private int energy;
-    private int startEnergy;
+    private final int startEnergy;
     private final int moveCost;
     private final int birthEpoch;
     private final Animal father;
     private final Animal mother;
+
+//
     private final String name = Utils.getRandomAnimalName();
-    private boolean descendandOfTracked = false;
+    private boolean descendantOfTracked = false;
+    private final LinkedImageView healthBarImageView = new LinkedImageView(Utils.healthBarImage, this);
+
+//    Animal's children
     ArrayList<Animal> children = new ArrayList<>();
+
     public Animal(AbstractWorldMap map, Vector2d initialPosition, int startEnergy,
                   int moveCost, Animal father, Animal mother, int birthEpoch, Genome genome){
+//        Set up the animal
         super(initialPosition, map);
         this.birthEpoch = birthEpoch;
         this.energy = startEnergy;
@@ -40,6 +49,7 @@ public class Animal extends AbstractWorldMapElement {
 
         int[] genomeArr = new int[32];
 
+//        If the genome was provided apply it, otherwise generate random one or one based on parents if they were provided
         if (genome != null){
             this.genome = genome;
         }else if (father != null && mother != null){
@@ -57,10 +67,14 @@ public class Animal extends AbstractWorldMapElement {
             this.genome = new Genome(genomeArr);
         }
     }
+
+//    Do a random move based on the genotype
     public void genotypeMove(){
         int moveIdx = Utils.getRandomNumber(0, genome.getGenomeArr().length);
         move(genome.getGenomeArr()[moveIdx]);
     }
+
+//    Move in the provided direction
     public void move(int direction){
         Vector2d newPos = position;
         Vector2d forwardMoveVector = new Vector2d(directionVectors[mapDirection][0], directionVectors[mapDirection][1]);
@@ -69,8 +83,9 @@ public class Animal extends AbstractWorldMapElement {
             case 4 -> newPos = position.add(forwardMoveVector.opposite());
             default -> mapDirection = (mapDirection+direction)%8;
         }
-        newPos = new Vector2d(newPos.x % map.getMapProps()[0], newPos.y % map.getMapProps()[1]);
+//        Move the animal based on input and do some ugly hard-coded properties for walled and rolled maps
         if (map.canMoveTo(newPos)){
+            newPos = new Vector2d(newPos.x % map.getMapProps()[0], newPos.y % map.getMapProps()[1]);
             if (newPos.x < 0){
                 newPos = new Vector2d(map.getMapProps()[0] -1 , newPos.y);
             }
@@ -83,6 +98,7 @@ public class Animal extends AbstractWorldMapElement {
         this.energy -= this.moveCost;
     }
 
+//    Generates a genome based on father and mother
     private void generateGenome(Animal father, Animal mother){
         Animal stronger = (father.getEnergy() > mother.getEnergy()) ? father : mother;
         Animal weaker = (father.getEnergy() <= mother.getEnergy()) ? father : mother;
@@ -109,21 +125,21 @@ public class Animal extends AbstractWorldMapElement {
 //        Żeby nie liczyć zbyt wielu dzieci, dziecko jest przypisane do silniejszego rodzica
     }
 
-    public void setDescendandOfTracked(boolean descendandOfTracked) {
-        this.descendandOfTracked = descendandOfTracked;
+//    Sets a flag for tracking
+    public void setDescendantOfTracked(boolean descendantOfTracked) {
+        this.descendantOfTracked = descendantOfTracked;
     }
-    public boolean isDescendandOfTracked(){
-        return this.descendandOfTracked;
+    public boolean isDescendantOfTracked(){
+        return this.descendantOfTracked;
     }
 
-    public void die(int epoch){
-        return;
-    }
+
+//    Some self-explanatory getters and setters
     @Override
     public Image getImage() {
         return  Utils.animalImages[mapDirection];
     }
-    public LinkedImageView getHealthBarImageView(){return healthBarImageView;};
+    public LinkedImageView getHealthBarImageView(){return healthBarImageView;}
     public int getEnergy(){
         return energy;
     }
@@ -168,6 +184,7 @@ public class Animal extends AbstractWorldMapElement {
     public Animal getMother(){
         return mother;
     }
+    public int getMapDirection(){return mapDirection;}
     public float getEnergyPercentage(){
         if (this.energy <= 0 ){
             return 0;

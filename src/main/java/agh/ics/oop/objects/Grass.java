@@ -6,7 +6,7 @@ import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.gui.GuiElementBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
+// A simple world object representing a tuft of grass
 public class Grass extends AbstractWorldMapElement {
 
     public Grass(Vector2d position, AbstractWorldMap map){

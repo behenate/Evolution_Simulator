@@ -5,7 +5,6 @@ import agh.ics.oop.dataTypes.CustomHashMap;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.gui.GuiElementBox;
 import agh.ics.oop.simulation.IPositionChangeObserver;
-import agh.ics.oop.simulation.MapVisualizer;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -14,7 +13,9 @@ import javafx.scene.layout.RowConstraints;
 
 import java.util.ArrayList;
 
+// A class representing map, its elements and implementing some essential functionality
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
+//    Map properties
     protected int width;
     protected int height;
     protected int jungleWidth;
@@ -24,11 +25,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected int size;
     protected int gridCellSize;
     protected final CustomHashMap mapElements = new CustomHashMap();
-    protected final MapVisualizer visualizer = new MapVisualizer(this);
-
     public AbstractWorldMap(int width,int height,float jungleRatio, int size){
         this.width = width;
         this.height = height;
+//        Calculate jungle width and height
         this.jungleWidth = Math.round(width*(float)Math.sqrt(jungleRatio));
         this.jungleHeight = Math.round(height*(float)Math.sqrt(jungleRatio));
         this.jungleX = (width-jungleWidth)/2;
@@ -36,6 +36,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.size = size;
         this.gridCellSize = Math.min(size/width, size/height);
     }
+
+//    Place an animal on the map
     public boolean place(Animal animal) throws IllegalArgumentException {
         if (!canMoveTo(animal.getPosition())){
             throw new IllegalArgumentException("Pole " + animal.getPosition() + " nie jest dobrym polem dla zwierzaka!");
@@ -45,38 +47,33 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return true;
     }
 
-
-
-    public CustomHashMap getMapElements(){
-        return mapElements;
-    }
+//    Returns an ArrayList of map elemenst at provided position
     public Object objectAt(Vector2d position) {
         return mapElements.get(position);
     }
 
-
+//  Checks if there is any element at position
     public boolean isOccupied(Vector2d position) {
         return mapElements.get(position) != null;
     }
+//    Checks if there is an animal at specified position
     public boolean isOccupiedByAnimal(Vector2d position){
-        //If there is a strongest animal on chosen field, that means that the field is occupied
+        //If there is the strongest animal on chosen field, that means that the field is occupied
         return mapElements.getStrongest(position).size() != 0;
     }
-    public String toString() {
-        return visualizer.draw(new Vector2d(0,0), new Vector2d(width, height));
-    }
 
+//    Callback that gets called each time an animal moves
     @Override
     public void positionChanged(IMapElement element, Vector2d newPosition) {
         mapElements.cRemove(element.getPosition(), element);
         mapElements.cPut(newPosition, element);
     }
-    //Zamienia realną pozycję czegoś na odpowiednią pozycję na mapie
+    // Flips the Y position coordinate
     private Vector2d flipPos(Vector2d pos){
         return new Vector2d(pos.x, height - (pos.y));
     }
 
-    public void renderGrid(GridPane gridPane, int size){
+    public void renderGrid(GridPane gridPane){
         gridPane.setGridLinesVisible(true);
         Label newLabel = new Label("y/x");
         gridPane.add(newLabel, 0,0,1, 1);
@@ -84,6 +81,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         gridPane.getColumnConstraints().clear();
         gridPane.getRowConstraints().clear();
 
+//        Set width and height of grid cells
         for (int i = 0; i < width+1; i++) {
             gridPane.getColumnConstraints().add(new ColumnConstraints(gridCellSize));
         }
@@ -91,6 +89,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             gridPane.getRowConstraints().add(new RowConstraints(gridCellSize));
         }
 
+//        Create coordinate labels
         for (int i = 0; i < width; i++){
             newLabel = new Label(Integer.toString(i));
             gridPane.add(newLabel, i+1, 0 ,1, 1);
@@ -102,6 +101,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             gridPane.add(newLabel, 0, i+1 ,1, 1);
             GridPane.setHalignment(newLabel, HPos.CENTER);
         }
+//        Draw the map elements
         for (Vector2d key: mapElements.keySet()) {
             IMapElement toRender;
             ArrayList<Animal> strongestAnimals = mapElements.getStrongest(key);
@@ -113,11 +113,13 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
 
+//    Returns the most basic information about the map in an array form
     @Override
     public int[] getMapProps() {
         return new int[]{width, height, jungleHeight, jungleHeight};
     }
 
+//  Method that places n tufts of grass in the jungle
     public int placeGrassJungle(int n){
         if (n==0)
             return 0;
@@ -148,6 +150,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
         return 0;
     }
+
+//    Method to place n grass tufts on the steppe
     public int placeGrassSteppe(int n){
         if (n==0)
             return 0;
@@ -185,6 +189,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
         return 0;
     }
+    public CustomHashMap getMapElements(){
+        return mapElements;
+    }
+
     public int getWidth(){
         return this.width;
     }

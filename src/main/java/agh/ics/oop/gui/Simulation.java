@@ -1,14 +1,12 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.Utils;
-import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.objects.AbstractWorldMap;
 import agh.ics.oop.simulation.IMapChangeObserver;
 import agh.ics.oop.simulation.SimulationEngine;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -20,11 +18,13 @@ import javafx.scene.layout.VBox;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
+// Class that creates a whole simulation including the fully functional UI for it.
 public class Simulation implements IMapChangeObserver {
+//    Define the neccessary variables
     private final AbstractWorldMap map;
     private final SimulationEngine engine;
     private final AnimalStatsTracker animalStatsTracker;
-    private final StatsChartManager statsChartManager;
+    private final StatsManager statsChartManager;
     private final GridPane gridPane = new GridPane();
     private final Label magicSpawnsLabel;
     private final Thread engineThread;
@@ -32,28 +32,34 @@ public class Simulation implements IMapChangeObserver {
     private final VBox mapAndStatsContainer = new VBox();
     private final int type;
     private final int mapSizePx = (int) (Utils.windowWidth*0.3);
-    public Simulation(AbstractWorldMap map, int startAnimals, int startGrass, int startEnergy, int moveCost, int plantEnergy, boolean isMagical, int type){
+
+
+    public Simulation(AbstractWorldMap map, int startAnimals, int startGrass, int startEnergy, int moveCost, int plantEnergy, boolean isMagical, int moveDelay, int type){
         this.map = map;
-        statsChartManager = new StatsChartManager(map);
         this.type = type;
-        int[] mapProps = map.getMapProps();
+//        Create new simulation statisticts  collection tool and animal tracking tool
+        statsChartManager = new StatsManager(map);
         animalStatsTracker = new AnimalStatsTracker(this);
-        this.engine = new SimulationEngine(map, startAnimals, 1, startEnergy, startGrass, moveCost, plantEnergy, isMagical, statsChartManager, animalStatsTracker);
+//        Create new simulation engine
+        this.engine = new SimulationEngine(map, startAnimals, moveDelay, startEnergy, startGrass, moveCost, plantEnergy, isMagical, statsChartManager, animalStatsTracker);
 
         engine.addObserver(this);
         engineThread = new Thread(engine);
-
+//        Create Event Handler for tracking a single animal
         EventHandler<MouseEvent> eventHandler = e -> {
             if (engine.isSuspended()){
                 animalStatsTracker.setupTracker(e.getTarget());
             }
         };
         gridPane.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
-        magicSpawnsLabel = engine.isMagical() ? new Label("Magic spawns : 0") : null;
 
+//        If simulation is "magical" add and appropriate label
+        magicSpawnsLabel = engine.isMagical() ? new Label("Magic spawns : 0") : null;
         setupUI();
     }
+//    Create UI for the simulation
     private void setupUI(){
+//        Button that starts and pauses the animation
         Button pauseButton = new Button("Start");
         pauseButton.setPrefWidth(Utils.windowWidth*0.10);
         pauseButton.setPrefHeight(Utils.windowWidth*0.02);
@@ -86,6 +92,7 @@ public class Simulation implements IMapChangeObserver {
                 }
             }
         });
+//        Button for saving the simulation statistics
         Button saveButton = new Button("Save history to file");
         saveButton.setPrefWidth(Utils.windowWidth*0.10);
         saveButton.setPrefHeight(Utils.windowWidth*0.02);
@@ -94,7 +101,7 @@ public class Simulation implements IMapChangeObserver {
                 statsChartManager.saveToFile();
             }
         });
-
+//      Create a container for the buttons
         HBox buttonsBox = new HBox(pauseButton, genomeHighlightButton, saveButton);
         buttonsBox.setAlignment(Pos.CENTER);
         buttonsBox.setStyle("-fx-background-color: #b05dc7;");
@@ -104,15 +111,16 @@ public class Simulation implements IMapChangeObserver {
         }else {
             mapAndStatsContainer.getChildren().addAll(gridPane, buttonsBox, animalStatsTracker.getUI());
         }
-
+//        The simulation on the left has the stats on the left, the one on the right has them on the right
         if (type == 0){
             mainContainer = new HBox(statsChartManager.getUI(), mapAndStatsContainer);
         }else{
             mainContainer = new HBox(mapAndStatsContainer, statsChartManager.getUI());
         }
         mapAndStatsContainer.setAlignment(Pos.CENTER);
-        map.renderGrid(gridPane, mapSizePx);
+        map.renderGrid(gridPane);
     }
+
     public Pane getUI() {
 //        Wrapuję w pane, bo inaczej lubi się wylewać poza ekran
         return new Pane(this.mainContainer);
@@ -120,12 +128,12 @@ public class Simulation implements IMapChangeObserver {
 
     @Override
     public void mapChanged() {
-//      Przed kontynuacją wątku Simulation Engine poczekaj na koniec przerysowywania UI
+//      In the simulation Engine wait for the UI thread to stop drawing
         FutureTask<Object> futureTask = new FutureTask<>(()->{
 //            Redraw the map and set the magic spawns counter UI
             gridPane.setGridLinesVisible(false);
             gridPane.getChildren().clear();
-            map.renderGrid(gridPane, mapSizePx);
+            map.renderGrid(gridPane);
             if (engine.isMagical())
                 magicSpawnsLabel.setText("Magic spawns: " + engine.getMagicSpawns());
         }, null);
@@ -135,10 +143,6 @@ public class Simulation implements IMapChangeObserver {
         } catch (InterruptedException|ExecutionException e) {
             e.printStackTrace();
         }
-    }
-
-    public SimulationEngine getEngine() {
-        return engine;
     }
 
     public AbstractWorldMap getMap() {

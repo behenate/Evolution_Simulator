@@ -6,6 +6,7 @@ import agh.ics.oop.dataTypes.Vector2d;
 
 import java.util.ArrayList;
 
+// Abstract class holding common properties and method for all map elements
 public abstract class AbstractWorldMapElement implements IMapElement {
 
     protected ArrayList<IPositionChangeObserver> observers = new ArrayList<>();
@@ -21,15 +22,13 @@ public abstract class AbstractWorldMapElement implements IMapElement {
     public Vector2d getPosition(){
         return position;
     }
+
     public GuiElementBox getGuiElementBox(){
         this.guiElementBox.update();
         return this.guiElementBox;
     }
     public void addObserver(IPositionChangeObserver observer){
         observers.add(observer);
-    }
-    public void removeObserver(IPositionChangeObserver observer){
-        observers.remove(observer);
     }
     protected void positionChanged(IMapElement element,Vector2d newPosition ){
         for (IPositionChangeObserver observer: observers) {

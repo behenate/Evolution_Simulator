@@ -1,10 +1,10 @@
 package agh.ics.oop.dataTypes;
 
 import java.util.Arrays;
-import java.util.Objects;
 
+// Datatype for storing an animals genome
 public class Genome {
-    private int[] genome;
+    private final int[] genome;
     public Genome(int[] genome){
         this.genome = genome;
     }
@@ -12,13 +12,15 @@ public class Genome {
     public int[] getGenomeArr() {
         return genome;
     }
+//    Converts the genome to string
     public String getGenomeString(){
         StringBuilder str = new StringBuilder();
-        for (int i = 0; i < genome.length; i++) {
-            str.append(genome[i]);
+        for (int j : genome) {
+            str.append(j);
         }
         return str.toString();
     }
+//    Creates correct equals and hashcode for storing genomes in a HashMap
     @Override
     public int hashCode() {
         return Arrays.hashCode(genome);

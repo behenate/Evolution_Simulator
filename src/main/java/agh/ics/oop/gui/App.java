@@ -10,21 +10,19 @@ import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import jdk.jshell.execution.Util;
 
+// Main application class
 public class App extends Application {
     Scene scene;
     Simulation wallSimulation;
     Simulation rolledSimulation;
-    SimulationPropsReader simulationPropsReader = new SimulationPropsReader(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            switchToSimulationView();
-        }
-    });
+//    Creates a reader for initial settings for the maps.
+    SimulationPropsReader simulationPropsReader = new SimulationPropsReader(event -> switchToSimulationView());
     HBox mainContainer = new HBox();
     public void init(){
+//        Preloads the textures to the Utils module
         Utils.loadImages();
+//        Sets up the ui
         mainContainer.getChildren().addAll(simulationPropsReader.getReaderUI());
         mainContainer.setSpacing(20);
         mainContainer.setAlignment(Pos.CENTER);
@@ -40,25 +38,30 @@ public class App extends Application {
         primaryStage.show();
 
 //        Close the entire app when clicking the window "x"
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
-            }
+        primaryStage.setOnCloseRequest(t -> {
+            Platform.exit();
+            System.exit(0);
         });
 
 //        Load the width and height to the utils
         Utils.windowWidth = (int) primaryStage.getWidth();
         Utils.windowHeight = (int) primaryStage.getHeight();
-
-//        switchToSimulationView();
     }
+//    Methods that creates simulations based on user input
     private void switchToSimulationView(){
-        wallSimulation = simulationPropsReader.generateWallMapSimulation();
-        rolledSimulation = simulationPropsReader.generateRolledMapSimulation();
-        mainContainer.getChildren().clear();
-        mainContainer.getChildren().addAll(wallSimulation.getUI(), rolledSimulation.getUI());
+        try{
+            wallSimulation = simulationPropsReader.generateWallMapSimulation();
+            rolledSimulation = simulationPropsReader.generateRolledMapSimulation();
+            mainContainer.getChildren().clear();
+            mainContainer.getChildren().addAll(wallSimulation.getUI(), rolledSimulation.getUI());
+        }catch (NumberFormatException ex){
+            System.out.println("Please input data in number format!");
+            System.exit(1);
+        }catch (IllegalArgumentException ex){
+            System.out.println("Please input data that doesn't exceed sensible values!");
+            System.exit(1);
+        }
+
     }
 
 }

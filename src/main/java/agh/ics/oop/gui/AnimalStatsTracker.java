@@ -5,7 +5,6 @@ import agh.ics.oop.dataTypes.LinkedImageView;
 import agh.ics.oop.objects.AbstractWorldMap;
 import agh.ics.oop.objects.Animal;
 import agh.ics.oop.objects.IMapElement;
-import agh.ics.oop.simulation.SimulationEngine;
 import javafx.event.EventTarget;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,18 +17,17 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.Set;
 
+// Tracker for the specific animal stats
 public class AnimalStatsTracker {
     private final AbstractWorldMap map;
-    private final Simulation simulation;
     private final VBox mainContainer = new VBox();
     private Animal target;
-    private final SimulationEngine engine;
-    private final Text titleText = new Text("Animal Statistics Tracker");
     private final Text trackingNameText = new Text("");
     private final Text childrenNoText = new Text("");
     private final Text allDescendantsText = new Text("");
     private final Text isDeadText = new Text("");
     private final Text genomeText = new Text("");
+    Text titleText = new Text("");
     Button trackButton = new Button();
     private int childrenSinceStart = 0;
     private int allDescendants = 0;
@@ -37,8 +35,8 @@ public class AnimalStatsTracker {
     private int death_epoch = -1;
     public AnimalStatsTracker(Simulation simulation){
         this.map = simulation.getMap();
-        this.simulation = simulation;
-        this.engine = simulation.getEngine();
+
+        //Setup the UI elements
         VBox statsContainer = new VBox();
         statsContainer.getChildren().addAll(
                 trackingNameText,
@@ -48,6 +46,7 @@ public class AnimalStatsTracker {
                 allDescendantsText,
                 trackButton
         );
+
         statsContainer.setAlignment(Pos.CENTER);
         statsContainer.setSpacing(10);
         mainContainer.getChildren().addAll(titleText, statsContainer);
@@ -66,28 +65,34 @@ public class AnimalStatsTracker {
         genomeText.setFont(dataFont);
         trackButton.setVisible(false);
     }
+//    Method called when and element is clicked by mouse
     public void setupTracker(EventTarget eventTarget){
-        if (eventTarget instanceof LinkedImageView && ((LinkedImageView) eventTarget).getRepresentedElement() instanceof Animal){
+//        Check if Animal was tracked, setup tracker and highlight it, else disable the tracker
+        if (eventTarget instanceof LinkedImageView &&
+                ((LinkedImageView) eventTarget).getRepresentedElement() instanceof Animal){
             animalTrackerCleanup();
             target = ((Animal) ((LinkedImageView) eventTarget).getRepresentedElement());
-            target.setDescendandOfTracked(true);
+            target.setDescendantOfTracked(true);
             childrenSinceStart = 0;
             allDescendants = 0;
             trackButton.setVisible(true);
             target.highlight();
+            is_tracking = false;
             switchToPreviewUI();
         }else
             disableTracker();
     }
 
+//    UI showing only basic inormation about the Animal
     private void switchToPreviewUI(){
         showElements();
-        is_tracking = false;
+        titleText.setText("Animal Stats Preview");
         childrenNoText.setText("");
         allDescendantsText.setText("");
         isDeadText.setText("");
         genomeText.setText("");
         death_epoch = -1;
+//        aOrAn makes sure the sentence is gramatically correct
         String aOrAn = Set.of('A', 'E', 'I', 'O', 'U').contains(target.getName().charAt(0)) ? "an ": "a ";
         trackingNameText.setText("You are previewing " + aOrAn + target.getName());
         genomeText.setText(target.getName() + "s genome: " + target.getGenotypeString());
@@ -100,23 +105,25 @@ public class AnimalStatsTracker {
         });
     }
 
+//    Switches to detailed tracking of chosen animal
     private void switchToTrackerUI(){
+        titleText.setText("Animal Stats Tracker");
         String aOrAn = Set.of('A', 'E', 'I', 'O', 'U').contains(target.getName().charAt(0)) ? "an ": "a ";
         trackingNameText.setText("You are tracking " + aOrAn + target.getName());
         genomeText.setText(target.getName() + "s genome: " + target.getGenotypeString());
 
-        trackButton.setOnAction(event -> {
-            disableTracker();
-        });
+        trackButton.setOnAction(event -> disableTracker());
         updateTrackerUI();
     }
 
+//    Disables the tracker
     private void disableTracker(){
         hideElements();
         animalTrackerCleanup();
         target = null;
     }
 
+//    Called when crucial information has to be updated
     public void updateTrackerUI(){
         this.childrenNoText.setText("Children Count: " + childrenSinceStart);
         this.allDescendantsText.setText("All Descendants Count: " + allDescendants);
@@ -126,18 +133,21 @@ public class AnimalStatsTracker {
             isDeadText.setText(target.getName() + " " + "Is still alive :))");
     }
 
+//    Method that adds the newborn to the animal statistics
     public void updateOnNewborn(Animal father, Animal mother, Animal newborn){
         if ((father.equals(target) || mother.equals(target)) && is_tracking){
             childrenSinceStart += 1;
             updateTrackerUI();
         }
-        if ((father.isDescendandOfTracked() || mother.isDescendandOfTracked())&& is_tracking){
-            newborn.setDescendandOfTracked(true);
+        if ((father.isDescendantOfTracked() || mother.isDescendantOfTracked())&& is_tracking){
+            newborn.setDescendantOfTracked(true);
             allDescendants += 1;
             updateTrackerUI();
         }
 
     }
+
+//    Method notifying of animal's death.
     public void updateOnDeath(Animal deceased, int epoch){
         if (deceased.equals(target)){
             death_epoch = epoch;
@@ -147,29 +157,37 @@ public class AnimalStatsTracker {
                 trackButton.setVisible(false);
         }
     }
+
+//    Hides all UI elements of the tracker
     public void hideElements(){
         for (Node node: mainContainer.getChildren()) {
             node.setVisible(false);
         }
     }
+
+//    Shows all UI elements of the tracker
     public void showElements(){
         for (Node node: mainContainer.getChildren()) {
             node.setVisible(true);
         }
     }
+
+//    Cleans up the side effects of the tracker running
     private void animalTrackerCleanup(){
         for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
             for (IMapElement element:elements) {
                 if ( element instanceof Animal){
-                    ((Animal) element).setDescendandOfTracked(false);
+                    ((Animal) element).setDescendantOfTracked(false);
                     ((Animal) element).deHighlight();
                 }
             }
         }
     }
+
+//    Highlights the animal that is currently being tracked
     public void highlightTracked(){
         if (target != null){
-            ((Animal) target).highlight();
+            target.highlight();
         }
     }
     public VBox getUI(){

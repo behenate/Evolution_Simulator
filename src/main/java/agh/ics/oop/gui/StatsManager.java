@@ -5,18 +5,18 @@ import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.objects.AbstractWorldMap;
 import agh.ics.oop.objects.Animal;
 import agh.ics.oop.objects.IMapElement;
-import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.CSVWriter;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.text.TextAlignment;
 
 import java.io.File;
@@ -26,17 +26,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-import com.opencsv.CSVWriter;
-
+// A class defining a single chart of some specific simulation statistics
 class StatsChart{
     final VBox container;
     final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
     final XYChart.Series series = new XYChart.Series();
-    final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
-    private final String name;
+
+    final LineChart<Number,Number> lineChart = new LineChart<>(xAxis, yAxis);
+
     public StatsChart(String name, String colour){
-        this.name = name;
         series.setName(name);
         lineChart.setCreateSymbols(false);
         lineChart.animatedProperty().set(false);
@@ -56,8 +55,8 @@ class StatsChart{
     }
 }
 
-public class StatsChartManager {
-    private ArrayList<String[]> statsHist = new ArrayList<>();
+public class StatsManager {
+    private final ArrayList<String[]> statsHist = new ArrayList<>();
     private final String filepath =  "Stats-" + System.currentTimeMillis() / 1000 + ".csv";
     private final File outputFile = new File(filepath);
     VBox mainContainer = new VBox();
@@ -71,8 +70,8 @@ public class StatsChartManager {
     private final StatsChart energyChart = new StatsChart("Average Energy", "#ff006e");
     private final StatsChart lifespanChart = new StatsChart("Average Lifespan", "#8338ec");
     private final StatsChart childrenChart = new StatsChart("Number Of Children", "#3a86ff");
-    private StatsChart[] allCharts = {animalChart, plantChart, energyChart, lifespanChart, childrenChart};
-    private Text dominantGenotypeText = new Text("");
+    private final StatsChart[] allCharts = {animalChart, plantChart, energyChart, lifespanChart, childrenChart};
+    private final Text dominantGenotypeText = new Text("");
 
     private int animalsNumber = 0;
     private int plantNumber = 0;
@@ -82,11 +81,13 @@ public class StatsChartManager {
     private int childrenCountSum = 0;
 
     private boolean genomeHighlighted = false;
-    public StatsChartManager(AbstractWorldMap map){
+    public StatsManager(AbstractWorldMap map){
         this.map = map;
-        statsHist.add(new String[]{"Animals No.", "Number of plants", "Average Energy", "Average Lifespan", "Number Of Chilren"});
+        statsHist.add(new String[]{"Animals No.", "Number of plants", "Average Energy", "Average Lifespan", "Number Of Children"});
         UISetup();
     }
+
+//    Sets up the charts and dominant genome UI elements
     private void UISetup(){
         for (StatsChart chart:allCharts) {
             chartsContainer.getChildren().add(chart.getUI());
@@ -106,6 +107,7 @@ public class StatsChartManager {
         mainContainer.setStyle("-fx-background-color: #eeb79b;");
     }
 
+//    Adds relevant data to the charts
     public void chartUpdate(int epoch){
         Platform.runLater(()->{
             animalChart.addData(epoch, animalsNumber);
@@ -121,17 +123,20 @@ public class StatsChartManager {
                     String.valueOf(childrenCountSum)});
         });
     }
+//    Resets stats that are recalcuated on each epoch
     public void resetEpochStats(){
         animalsNumber = 0;
         energySum = 0;
         childrenCountSum = 0;
     }
+//    Reads data from an alive animal. Called each epoch
     public void readAliveAnimalData(Animal animal){
-        // Zwiększ liczniki
         animalsNumber += 1;
         childrenCountSum += animal.getChildren().size();
         energySum += animal.getEnergy();
     }
+
+//    Reads data that is changed only when new Animal is spawned
     public void readDataOnAnimalBirth(Animal animal){
         //         Add the genotype to the hashmap and check if it's the new most populus
         int sameGenotypeCount = genotypes.get(animal.getGenome()) == null ? 0 : genotypes.get(animal.getGenome());
@@ -142,6 +147,8 @@ public class StatsChartManager {
             Platform.runLater(()->dominantGenotypeText.setText(animal.getGenotypeString()));
         }
     }
+
+//    Reads data that only needs to be read when an animal dies [*]
     public void readDataOnAnimalDeath(Animal animal, int epoch){
         lifetimeSum += epoch-animal.getBirthEpoch();
         lifetimeSamples += 1;
@@ -164,12 +171,12 @@ public class StatsChartManager {
         Platform.runLater(() -> dominantGenotypeText.setText(animal.getGenotypeString()));
     }
 
+//    Highlights all the animals with dominant genome
     public void highlightGenome(){
         this.genomeHighlighted = true;
         for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
             for (IMapElement element:elements) {
-                if (element instanceof Animal){
-                    Animal animal = (Animal) element;
+                if (element instanceof Animal animal){
                     if (animal.getGenome().equals(dominantGenome)){
                         animal.highlight();
                     }
@@ -178,23 +185,25 @@ public class StatsChartManager {
             }
         }
     }
+
+//    Disables the highlight on animals with dominant genome
     public void deHighlightGenome(){
         this.genomeHighlighted = false;
         for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
             for (IMapElement element:elements) {
-                if (element instanceof Animal){
-                    Animal animal = (Animal) element;
+                if (element instanceof Animal animal){
                     if (animal.getGenome().equals(dominantGenome))
                         animal.deHighlight();
                 }
             }
         }
-        System.out.println("Dehighlight!");
+        System.out.println("Unhighlight!");
     }
 
     public void addPlantCount(int number){
         plantNumber += number;
     }
+
     public void saveToFile(){
 //        Save stats to file
         try (CSVWriter writer = new CSVWriter(new FileWriter(outputFile),';',
@@ -202,7 +211,7 @@ public class StatsChartManager {
                 CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                 CSVWriter.DEFAULT_LINE_END)) {
             int oldAvgIdx = -1;
-            int[] avgs = new int[5];
+            int[] averages = new int[5];
 //            Sum for averages
             for (int i = 1; i < statsHist.size(); i++)
             {
@@ -212,7 +221,7 @@ public class StatsChartManager {
                     continue;
                 }
                 for (int j = 0; j < stats.length; j++) {
-                    avgs[j] += Integer.parseInt(stats[j]);
+                    averages[j] += Integer.parseInt(stats[j]);
                 }
             }
             //If saving again remove the old averages headers
@@ -221,17 +230,17 @@ public class StatsChartManager {
             }
 
 //            Divide the sums
-            for (int i = 0; i < avgs.length; i++) {
-                avgs[i] = avgs[i]/statsHist.size();
+            for (int i = 0; i < averages.length; i++) {
+                averages[i] = averages[i]/statsHist.size();
             }
 //            Convert to string, add to array, write
-            String[] avgsStr = new String[5];
-            for (int i = 0; i < avgs.length; i++) {
-                avgsStr[i] = String.valueOf(avgs[i]);
+            String[] averagesStr = new String[5];
+            for (int i = 0; i < averages.length; i++) {
+                averagesStr[i] = String.valueOf(averages[i]);
             }
             // Add average headers
             statsHist.add(new String[]{"Average:","Average:","Average:","Average:","Average:" });
-            statsHist.add(avgsStr);
+            statsHist.add(averagesStr);
             writer.writeAll(statsHist);
         }catch (IOException e) {
             e.printStackTrace();

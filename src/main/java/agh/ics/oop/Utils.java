@@ -2,6 +2,8 @@ package agh.ics.oop;
 
 import javafx.scene.image.Image;
 
+// Class with some methods and variables that are commonly used all across the application
+// These values should never be changed after initialization
 public class Utils {
     public static int windowWidth;
     public static int windowHeight;
@@ -22,7 +24,7 @@ public class Utils {
         return allAnimals[getRandomNumber(0, allAnimals.length)];
     }
 
-
+//  List with all animals in the world
     private static String[] allAnimals = {"Aardvark",
             "Abyssinian",
             "Addax",
@@ -115,7 +117,6 @@ public class Utils {
             "Avocet",
             "Axolotl",
             "Aye Aye",
-            "Animals that start with B",
             "Baboon",
             "Bactrian Camel",
             "Badger",
