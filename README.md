@@ -1,6 +1,6 @@
 # Dżem Dobry
 
-### Tutaj znajdują się rozwiązania zadań z programowania obiektowego wykonane przeze mnie, Wojciecha Dróżdż. 
+### Tutaj znajduje się rozwiązanie projektu 1 z programowania obiektowego wykonane przeze mnie, Wojciecha Dróżdż. Proszę nie kraść, można tylko patrzeć i podziwiać jakie ładne i fajne i w ogóle. 
 
 ![Chemistry dog no idea - i have no idea what i'm doing](https://memegenerator.net/img/instances/50289227.jpg)
 
@@ -31,7 +31,7 @@
 
 
 
-### Uwaga! Każdy obejrzany piesek oznacza +1 do oceny końcowej z laboratrium :)) 
+### Uwaga! Każdy obejrzany piesek oznacza +1 do oceny końcowej z projektu :)) 
 
 
 
