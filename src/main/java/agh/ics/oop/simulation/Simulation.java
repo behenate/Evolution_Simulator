@@ -38,11 +38,16 @@ public class Simulation implements IMapChangeObserver {
         statsChartManager = new StatsManager(map);
         animalStatsTracker = new AnimalStatsTracker(this);
 //        Create new simulation engine
-        this.engine = new SimulationEngine(map, startAnimals, moveDelay, startEnergy, startGrass, moveCost, plantEnergy, isMagical, statsChartManager, animalStatsTracker);
+        this.engine = new SimulationEngine(map,
+                startAnimals,
+                moveDelay,
+                startGrass,
+                startEnergy,
+                moveCost,
+                plantEnergy, isMagical, statsChartManager, animalStatsTracker);
 
         engine.addObserver(this);
         engineThread = new Thread(engine);
-        engineThread.start();
 
 //        Create Event Handler for tracking a single animal
         EventHandler<MouseEvent> eventHandler = e -> {
@@ -55,7 +60,6 @@ public class Simulation implements IMapChangeObserver {
 //        If simulation is "magical" add and appropriate label
         magicSpawnsLabel = engine.isMagical() ? new Label("Magic spawns : 0") : null;
         setupUI();
-        engine.suspend();
     }
 //    Create UI for the simulation
     private void setupUI(){
@@ -122,7 +126,7 @@ public class Simulation implements IMapChangeObserver {
     }
 
     public Pane getUI() {
-//        Wrapuję w pane, bo inaczej lubi się wylewać poza ekran
+//        Insert into pane to avoid weird behaviour
         return new Pane(this.mainContainer);
     }
 

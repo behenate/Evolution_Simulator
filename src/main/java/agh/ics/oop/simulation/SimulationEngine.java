@@ -30,6 +30,8 @@ public class SimulationEngine implements Runnable {
     public SimulationEngine(AbstractWorldMap map, int startAnimals, Integer moveDelay,int startGrass, int startEnergy,
                             int moveCost, int plantEnergy, boolean isMagical, StatsManager statsManager,
                             AnimalStatsTracker animalStatsTracker) {
+        System.out.println(startAnimals +" " + moveDelay + startGrass + " "+ startEnergy + " " + moveCost + " " + plantEnergy);
+
         this.moveDelay = moveDelay;
         this.animals = new ArrayList<>();
         this.map = map;
@@ -39,7 +41,6 @@ public class SimulationEngine implements Runnable {
         this.statsManager = statsManager;
         this.animalStatsTracker = animalStatsTracker;
         this.isMagical = isMagical;
-
 //        Places animals at random non-colliding positions
         for (int i = 0; i < startAnimals; i++) {
             Animal newAnimal  = generateAnimalAtRandomPos(map, startEnergy, moveCost, null, null, 0, null);

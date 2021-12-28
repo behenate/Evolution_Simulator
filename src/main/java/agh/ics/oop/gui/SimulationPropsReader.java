@@ -8,106 +8,90 @@ import agh.ics.oop.simulation.Simulation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-// Subclass for just reading the data
-class SimulationPropsSubReader {
-    private final VBox mainContainer = new VBox();
-    TextField mapWidthField = new TextField("10");
-    TextField mapHeightField = new TextField("10");
-    TextField animalNumberField = new TextField("20");
-    TextField grassNumberField = new TextField("20");
-    TextField startEnergyField = new TextField("10");
-    TextField moveEnergyField = new TextField("1");
-    TextField plantEnergyField = new TextField("8");
-    TextField jungleRatioField = new TextField("0.3");
-    TextField animationStepDelayField = new TextField("50");
-    CheckBox isMagical = new CheckBox();
-    TextField [] fields = {mapWidthField, mapHeightField, animalNumberField,grassNumberField,startEnergyField, moveEnergyField, plantEnergyField, jungleRatioField, animationStepDelayField};
-    String[] fieldsDescriptions = { "Width of the map: ", "Height of the map: ","Start number of animals: ",
-            "Start number of grass tufts: ","Animal start energy:", "Energy cost of an animal move: ",
-            "Energy bonus from eating a tuft of grass: ", "Jungle to field ratio:", "Animation step delay in ms: "
-    };
-//    On start create new window and read the properties
-    public SimulationPropsSubReader(String title){
-        Text titleText = new Text(title);
-        titleText.setFont(Font.font ("Rubik", 20));
-        mainContainer.getChildren().add(titleText);
-        mainContainer.setAlignment(Pos.CENTER);
-        mainContainer.setPrefWidth(250);
-        for (int i = 0; i < fields.length; i++) {
-            mainContainer.getChildren().addAll(new Text(fieldsDescriptions[i]), fields[i]);
+class ReaderBox {
+    protected String defaultValue;
+    protected String title;
+    private final TextField textField;
+    private final float valueLow;
+    private final float valueHigh;
+//  Simple box that stores the value and the allowed limits for said value
+    public ReaderBox(String defaultValue, String title, float valueLow, float valueHigh) {
+        this.defaultValue = defaultValue;
+        this.title = title;
+        textField = new TextField(defaultValue);
+        this.valueLow = valueLow;
+        this.valueHigh = valueHigh;
+    }
+//  function that gets the value and checks if input data is correct
+    public float getValue() {
+        float value = 0;
+        try {
+            value = Float.parseFloat(textField.getText());
+            if (value < valueLow) {
+                throw new IllegalArgumentException("Value: " + value + " is too low for the " + title.toLowerCase() + " field!");
+            } else if (value > valueHigh) {
+                throw new IllegalArgumentException("Value: " + value + " is too high for the " + title.toLowerCase() + " field!");
+            }
+        } catch (NumberFormatException ex) {
+            throw new NumberFormatException("Provide data in numerical value for the" + title.toLowerCase() + " field!");
         }
-        mainContainer.getChildren().addAll(new Text("Is the simulation magical?"), isMagical);
+        return value;
     }
-
-    private void correctnessChecker(TextField textField, float value_low, float value_high){
-        if (Float.parseFloat(textField.getText()) < value_low || Float.parseFloat(textField.getText()) > value_high){
-            throw new IllegalArgumentException("The input value was outside of bounds!");
-        }
-    }
-    public int getMapWidth(){
-        correctnessChecker(mapWidthField, 1, Integer.MAX_VALUE);
-        return Integer.parseInt(mapWidthField.getText());
-    }
-    public int getMapHeight(){
-        correctnessChecker(mapHeightField, 1, Integer.MAX_VALUE);
-        return Integer.parseInt(mapHeightField.getText());
-    }
-    public int getStartEnergy(){
-        correctnessChecker(startEnergyField, 1, Integer.MAX_VALUE);
-        return Integer.parseInt(startEnergyField.getText());
-    }
-    public int getAnimalNumber(){
-        correctnessChecker(animalNumberField, 0, getMapWidth()*getMapHeight());
-        return Integer.parseInt(animalNumberField.getText());
-    }
-    public int getGrassNumber(){
-        correctnessChecker(grassNumberField, 0, getMapWidth()*getMapHeight());
-        return Integer.parseInt(grassNumberField.getText());
-    }
-    public int getMoveEnergy(){
-        correctnessChecker(moveEnergyField, 0, Integer.MAX_VALUE);
-        return Integer.parseInt(moveEnergyField.getText());
-    }
-    public int getPlantEnergy(){
-        correctnessChecker(plantEnergyField, 0, Integer.MAX_VALUE);
-        return Integer.parseInt(plantEnergyField.getText());
-    }
-    public float getJungleRatio(){
-        correctnessChecker(jungleRatioField, 0, 1);
-        return Float.parseFloat(jungleRatioField.getText());
-    }
-    public int getMoveDelay(){
-        correctnessChecker(animationStepDelayField, 1, Integer.MAX_VALUE);
-        return Integer.parseInt(animationStepDelayField.getText());
-    }
-    public boolean getIsMagical(){
-        return isMagical.selectedProperty().get();
-    }
-    public VBox getSubReaderUI(){
-        return this.mainContainer;
+//  Returns a box with the title and the field
+    public Node getUI() {
+        VBox toRet = new VBox(new Label(title  + ":") , textField);
+        toRet.setAlignment(Pos.CENTER);
+        return toRet;
     }
 }
+
 // Class that reads the data and creates two simulations based on it
 // Splitting into two classes made sense when both simulations had different inputs, now
 public class SimulationPropsReader {
-    HBox inputContainer = new HBox();
+    VBox inputContainer = new VBox();
     VBox mainContainer = new VBox();
-    SimulationPropsSubReader mapProps = new SimulationPropsSubReader("Map Properties");
     Button startSimulationButton = new Button("Start Simulation");
-//    On start create window and create new reader
-    public SimulationPropsReader(EventHandler<ActionEvent> onButtonClick){
+
+    //    Create the input fields
+    ReaderBox mapWidth = new ReaderBox("10", "Width of the map", 2, 1000);
+    ReaderBox mapHeight = new ReaderBox("10", "Width of the map", 2, 1000);
+    ReaderBox animalNumber = new ReaderBox("20", "Number of animals", 0, Integer.MAX_VALUE);
+    ReaderBox grassNumber = new ReaderBox("20", "Number of start carrots", 0, Integer.MAX_VALUE);
+    ReaderBox startEnergy = new ReaderBox("10", "Start energy", 1, Integer.MAX_VALUE);
+    ReaderBox moveEnergy = new ReaderBox("1", "Move cost", 0, Integer.MAX_VALUE);
+    ReaderBox plantEnergy = new ReaderBox("8", "Energy bonus from eating a carrot", 0, Integer.MAX_VALUE);
+    ReaderBox jungleRatio = new ReaderBox("0.3", "Jungle to field ratio", 0, 1);
+    ReaderBox animationStepDelay = new ReaderBox("50", "Animation step in ms", 1, Integer.MAX_VALUE);
+    CheckBox isMagical = new CheckBox();
+
+    //    On start create window and create new reader
+    public SimulationPropsReader(EventHandler<ActionEvent> onButtonClick) {
         inputContainer.setAlignment(Pos.CENTER);
-        inputContainer.setPrefWidth(1920);
-        inputContainer.setSpacing(50);
-        inputContainer.getChildren().addAll(mapProps.getSubReaderUI());
+        inputContainer.setPrefWidth(Utils.windowWidth);
+//      Add fields to the input container
+        inputContainer.getChildren().addAll(
+                mapWidth.getUI(),
+                mapHeight.getUI(),
+                animalNumber.getUI(),
+                grassNumber.getUI(),
+                startEnergy.getUI(),
+                moveEnergy.getUI(),
+                plantEnergy.getUI(),
+                jungleRatio.getUI(),
+                animationStepDelay.getUI(),
+                new Label("Is the simulation magical?"),
+                isMagical
+        );
         mainContainer.getChildren().addAll(inputContainer, startSimulationButton);
         mainContainer.setAlignment(Pos.CENTER);
         mainContainer.setSpacing(20);
@@ -116,49 +100,39 @@ public class SimulationPropsReader {
         startSimulationButton.setOnAction(onButtonClick);
     }
 
-    public VBox getReaderUI(){
+    public VBox getReaderUI() {
         return this.mainContainer;
     }
-//    Generate a simulation with walled map based on the input
-    public Simulation generateWallMapSimulation(){
-        AbstractWorldMap map = new WallMap(
-                mapProps.getMapWidth(),
-                mapProps.getMapHeight(),
-                mapProps.getJungleRatio(),
-                (int) (Utils.windowWidth*0.3)
-        );
-        return new Simulation(
-                map,
-                mapProps.getAnimalNumber(),
-                mapProps.getGrassNumber(),
-                mapProps.getStartEnergy(),
-                mapProps.getMoveEnergy(),
-                mapProps.getPlantEnergy(),
-                mapProps.getIsMagical(),
-                mapProps.getMoveDelay(),
-                0
-        );
+
+    //    Generate a simulation with walled map based on the input
+    public Simulation generateWallMapSimulation() {
+        return createSimulation(0);
     }
 
-//    Generates a simulation with walled map
-    public Simulation generateRolledMapSimulation(){
+    //    Generates a simulation with walled map
+    public Simulation generateRolledMapSimulation() {
+        return createSimulation(1);
+    }
+
+    //      Create a simlation of the specified type
+    private Simulation createSimulation(int type) {
         AbstractWorldMap map = new RolledMap(
-                mapProps.getMapWidth(),
-                mapProps.getMapHeight(),
-                mapProps.getJungleRatio(),
-                (int) (Utils.windowWidth*0.3)
+                (int) mapWidth.getValue(),
+                (int) mapHeight.getValue(),
+                jungleRatio.getValue(),
+                (int) (Utils.windowWidth * 0.3)
         );
-        Simulation sim;
         return new Simulation(
                 map,
-                mapProps.getAnimalNumber(),
-                mapProps.getGrassNumber(),
-                mapProps.getStartEnergy(),
-                mapProps.getMoveEnergy(),
-                mapProps.getPlantEnergy(),
-                mapProps.getIsMagical(),
-                mapProps.getMoveDelay()
-                ,1
+                (int) animalNumber.getValue(),
+                (int) grassNumber.getValue(),
+                (int) startEnergy.getValue(),
+                (int) moveEnergy.getValue(),
+                (int) plantEnergy.getValue(),
+                isMagical.selectedProperty().get(),
+                (int) animationStepDelay.getValue()
+                , type
         );
     }
 }
+

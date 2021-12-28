@@ -6,8 +6,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+
+import java.util.Optional;
 
 // Main application class
 public class App extends Application {
@@ -52,14 +56,23 @@ public class App extends Application {
             rolledSimulation = simulationPropsReader.generateRolledMapSimulation();
             mainContainer.getChildren().clear();
             mainContainer.getChildren().addAll(wallSimulation.getUI(), rolledSimulation.getUI());
-        }catch (NumberFormatException ex){
-            System.out.println("Please input data in number format!");
-            System.exit(1);
-        }catch (IllegalArgumentException ex){
-            System.out.println("Please input data that doesn't exceed sensible values!");
+        } catch (IllegalArgumentException ex){
+            errorPopup(ex.getMessage());
+        }
+    }
+    private void errorPopup(String message){
+//        Button exitButton = new Button("Exit");
+        ButtonType okButton = new ButtonType("Try Again", ButtonBar.ButtonData.OK_DONE);
+        ButtonType exitButton = new ButtonType("Exit", ButtonBar.ButtonData.CANCEL_CLOSE);
+        Alert alert = new Alert(Alert.AlertType.ERROR, "", okButton, exitButton);
+        alert.setContentText("");
+        alert.setHeaderText(message);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get().equals(exitButton)){
+            System.out.println(message);
             System.exit(1);
         }
 
-    }
 
+    }
 }
