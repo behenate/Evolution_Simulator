@@ -5,7 +5,7 @@ import agh.ics.oop.dataTypes.Vector2d;
 // A map that blocks animal movement when it tries to go through a wall
 public class WallMap extends AbstractWorldMap{
     public WallMap(int width,int height,float jungleRatio, int size){
-        super(width, height, jungleRatio, size);
+        super(width, height, jungleRatio, size, "WallMap");
     }
 
     @Override

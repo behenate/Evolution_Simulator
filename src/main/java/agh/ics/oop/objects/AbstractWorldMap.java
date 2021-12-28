@@ -25,7 +25,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected int size;
     protected int gridCellSize;
     protected final CustomHashMap mapElements = new CustomHashMap();
-    public AbstractWorldMap(int width,int height,float jungleRatio, int size){
+    protected final String name;
+    public AbstractWorldMap(int width,int height,float jungleRatio, int size, String name){
         this.width = width;
         this.height = height;
 //        Calculate jungle width and height
@@ -35,6 +36,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.jungleY = (height-jungleHeight)/2;
         this.size = size;
         this.gridCellSize = Math.min(size/width, size/height);
+        this.name = name;
     }
 
 //    Place an animal on the map
@@ -199,5 +201,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public int getHeight(){
         return this.height;
     }
+    public String getName(){return this.name;}
 
 }

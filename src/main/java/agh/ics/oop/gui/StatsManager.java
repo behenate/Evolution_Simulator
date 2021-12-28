@@ -57,8 +57,8 @@ class StatsChart{
 
 public class StatsManager {
     private final ArrayList<String[]> statsHist = new ArrayList<>();
-    private final String filepath =  "Stats-" + System.currentTimeMillis() / 1000 + ".csv";
-    private final File outputFile = new File(filepath);
+    private final File outputFile;
+
     VBox mainContainer = new VBox();
     VBox chartsContainer = new VBox();
     private final AbstractWorldMap map;
@@ -82,6 +82,8 @@ public class StatsManager {
 
     private boolean genomeHighlighted = false;
     public StatsManager(AbstractWorldMap map){
+        String filepath = map.getName() + "-Stats-" + System.currentTimeMillis() / 1000 + ".csv";
+        outputFile = new File(filepath);
         this.map = map;
         statsHist.add(new String[]{"Animals No.", "Number of plants", "Average Energy", "Average Lifespan", "Number Of Children"});
         UISetup();
