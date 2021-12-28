@@ -29,8 +29,8 @@ public class Simulation implements IMapChangeObserver {
     private HBox mainContainer;
     private final VBox mapAndStatsContainer = new VBox();
     private final int type;
-
-
+    Button genomeHighlightButton = new Button("Highlight Genome");
+    Button saveButton = new Button("Save history to file");
     public Simulation(AbstractWorldMap map, int startAnimals, int startGrass, int startEnergy, int moveCost, int plantEnergy, boolean isMagical, int moveDelay, int type){
         this.map = map;
         this.type = type;
@@ -70,22 +70,28 @@ public class Simulation implements IMapChangeObserver {
         pauseButton.setOnAction(e -> {
             if (!engineThread.isAlive()){
                 engineThread.start();
+                genomeHighlightButton.setVisible(false);
+                saveButton.setVisible(false);
                 pauseButton.setText("Pause");
             }else if (!engine.isSuspended()){
                 engine.suspend();
+                genomeHighlightButton.setVisible(true);
+                saveButton.setVisible(true);
                 pauseButton.setText("Continue");
             }else{
                 statsChartManager.deHighlightAll();
                 animalStatsTracker.highlightTracked();
                 engine.resume();
+                genomeHighlightButton.setVisible(false);
+                saveButton.setVisible(false);
                 pauseButton.setText("Pause");
             }
 
         });
 //        Button for highlighting the animals with dominant Genome
-        Button genomeHighlightButton = new Button("Highlight Genome");
         genomeHighlightButton.setPrefWidth(Utils.windowWidth*0.10);
         genomeHighlightButton.setPrefHeight(Utils.windowWidth*0.02);
+        genomeHighlightButton.setVisible(false);
         genomeHighlightButton.setOnAction((e) ->{
             if (engine.isSuspended()){
                 if (!statsChartManager.highlighted()){
@@ -97,9 +103,9 @@ public class Simulation implements IMapChangeObserver {
             }
         });
 //        Button for saving the simulation statistics
-        Button saveButton = new Button("Save history to file");
         saveButton.setPrefWidth(Utils.windowWidth*0.10);
         saveButton.setPrefHeight(Utils.windowWidth*0.02);
+        saveButton.setVisible(false);
         saveButton.setOnAction((e)->{
             if (engine.isSuspended()){
                 statsChartManager.saveToFile();

@@ -3,7 +3,6 @@ package agh.ics.oop.gui;
 import agh.ics.oop.Utils;
 import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.maps.RolledMap;
-import agh.ics.oop.maps.WallMap;
 import agh.ics.oop.simulation.Simulation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,8 +14,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 class ReaderBox {
     protected String defaultValue;
@@ -72,12 +69,19 @@ public class SimulationPropsReader {
     ReaderBox plantEnergy = new ReaderBox("8", "Energy bonus from eating a carrot", 0, Integer.MAX_VALUE);
     ReaderBox jungleRatio = new ReaderBox("0.3", "Jungle to field ratio", 0, 1);
     ReaderBox animationStepDelay = new ReaderBox("50", "Animation step in ms", 1, Integer.MAX_VALUE);
-    CheckBox isMagical = new CheckBox();
-
+    CheckBox isMagicalWall = new CheckBox();
+    CheckBox isMagicalRoll = new CheckBox();
     //    On start create window and create new reader
     public SimulationPropsReader(EventHandler<ActionEvent> onButtonClick) {
+        VBox isMagicalWallContainer = new VBox(new Label("Is the walled map magical?"), isMagicalWall);
+        VBox isMagicalRolledContainer = new VBox(new Label("Is the rolled map magical?"), isMagicalRoll);
+        isMagicalWallContainer.setAlignment(Pos.CENTER);
+        isMagicalRolledContainer.setAlignment(Pos.CENTER);HBox checkboxContainer = new HBox(isMagicalWallContainer, isMagicalRolledContainer);
         inputContainer.setAlignment(Pos.CENTER);
-        inputContainer.setPrefWidth(Utils.windowWidth);
+        inputContainer.setMaxWidth(250);
+        mainContainer.setPrefWidth(350);
+        checkboxContainer.setSpacing(20);
+        checkboxContainer.setAlignment(Pos.CENTER);
 //      Add fields to the input container
         inputContainer.getChildren().addAll(
                 mapWidth.getUI(),
@@ -88,11 +92,9 @@ public class SimulationPropsReader {
                 moveEnergy.getUI(),
                 plantEnergy.getUI(),
                 jungleRatio.getUI(),
-                animationStepDelay.getUI(),
-                new Label("Is the simulation magical?"),
-                isMagical
+                animationStepDelay.getUI()
         );
-        mainContainer.getChildren().addAll(inputContainer, startSimulationButton);
+        mainContainer.getChildren().addAll(inputContainer,checkboxContainer, startSimulationButton);
         mainContainer.setAlignment(Pos.CENTER);
         mainContainer.setSpacing(20);
         startSimulationButton.setPrefWidth(200);
@@ -122,6 +124,8 @@ public class SimulationPropsReader {
                 jungleRatio.getValue(),
                 (int) (Utils.windowWidth * 0.3)
         );
+        boolean isMagical = (isMagicalRoll.selectedProperty().get() && type ==1 || isMagicalWall.selectedProperty().get() && type == 0);
+
         return new Simulation(
                 map,
                 (int) animalNumber.getValue(),
@@ -129,7 +133,7 @@ public class SimulationPropsReader {
                 (int) startEnergy.getValue(),
                 (int) moveEnergy.getValue(),
                 (int) plantEnergy.getValue(),
-                isMagical.selectedProperty().get(),
+                isMagical,
                 (int) animationStepDelay.getValue()
                 , type
         );

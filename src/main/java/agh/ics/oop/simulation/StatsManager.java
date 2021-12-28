@@ -47,7 +47,7 @@ class StatsChart{
         container.setAlignment(Pos.CENTER);
         series.getNode().lookup(".chart-series-line").setStyle(String.format("-fx-stroke: %s;", colour));
     }
-    public void addData(int x, int y){
+    public void addData(int x, float y){
         series.getData().add(new XYChart.Data(x, y));
     }
     public Node getUI(){
@@ -73,12 +73,12 @@ public class StatsManager {
     private final StatsChart[] allCharts = {animalChart, plantChart, energyChart, lifespanChart, childrenChart};
     private final Text dominantGenotypeText = new Text("");
 
-    private int animalsNumber = 0;
-    private int plantNumber = 0;
-    private int energySum = 0;
-    private int lifetimeSum = 0;
-    private int lifetimeSamples = 1;
-    private int childrenCountSum = 0;
+    private float animalsNumber = 0;
+    private float plantNumber = 0;
+    private float energySum = 0;
+    private float lifetimeSum = 0;
+    private float lifetimeSamples = 1;
+    private float childrenCountSum = 0;
 
     private boolean genomeHighlighted = false;
     public StatsManager(AbstractWorldMap map){
@@ -212,7 +212,7 @@ public class StatsManager {
                 CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                 CSVWriter.DEFAULT_LINE_END)) {
             int oldAvgIdx = -1;
-            int[] averages = new int[5];
+            float[] averages = new float[5];
 //            Sum for averages
             for (int i = 1; i < statsHist.size(); i++)
             {
@@ -222,7 +222,7 @@ public class StatsManager {
                     continue;
                 }
                 for (int j = 0; j < stats.length; j++) {
-                    averages[j] += Integer.parseInt(stats[j]);
+                    averages[j] += Float.parseFloat(stats[j]);
                 }
             }
             //If saving again remove the old averages headers
