@@ -1,15 +1,13 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.Utils;
+import agh.ics.oop.simulation.Simulation;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 // Main application class
 public class App extends Application {

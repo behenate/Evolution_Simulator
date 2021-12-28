@@ -1,4 +1,4 @@
-package agh.ics.oop.objects;
+package agh.ics.oop.maps;
 
 import agh.ics.oop.dataTypes.Vector2d;
 

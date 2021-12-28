@@ -1,6 +1,7 @@
 package agh.ics.oop.objects;
 
 import agh.ics.oop.gui.GuiElementBox;
+import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.simulation.IPositionChangeObserver;
 import agh.ics.oop.dataTypes.Vector2d;
 

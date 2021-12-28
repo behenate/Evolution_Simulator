@@ -1,9 +1,7 @@
-package agh.ics.oop.gui;
+package agh.ics.oop.simulation;
 
 import agh.ics.oop.Utils;
-import agh.ics.oop.objects.AbstractWorldMap;
-import agh.ics.oop.simulation.IMapChangeObserver;
-import agh.ics.oop.simulation.SimulationEngine;
+import agh.ics.oop.maps.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -31,7 +29,6 @@ public class Simulation implements IMapChangeObserver {
     private HBox mainContainer;
     private final VBox mapAndStatsContainer = new VBox();
     private final int type;
-    private final int mapSizePx = (int) (Utils.windowWidth*0.3);
 
 
     public Simulation(AbstractWorldMap map, int startAnimals, int startGrass, int startEnergy, int moveCost, int plantEnergy, boolean isMagical, int moveDelay, int type){
@@ -45,6 +42,8 @@ public class Simulation implements IMapChangeObserver {
 
         engine.addObserver(this);
         engineThread = new Thread(engine);
+        engineThread.start();
+
 //        Create Event Handler for tracking a single animal
         EventHandler<MouseEvent> eventHandler = e -> {
             if (engine.isSuspended()){
@@ -56,6 +55,7 @@ public class Simulation implements IMapChangeObserver {
 //        If simulation is "magical" add and appropriate label
         magicSpawnsLabel = engine.isMagical() ? new Label("Magic spawns : 0") : null;
         setupUI();
+        engine.suspend();
     }
 //    Create UI for the simulation
     private void setupUI(){
@@ -71,7 +71,7 @@ public class Simulation implements IMapChangeObserver {
                 engine.suspend();
                 pauseButton.setText("Continue");
             }else{
-                statsChartManager.deHighlightGenome();
+                statsChartManager.deHighlightAll();
                 animalStatsTracker.highlightTracked();
                 engine.resume();
                 pauseButton.setText("Pause");
@@ -87,7 +87,7 @@ public class Simulation implements IMapChangeObserver {
                 if (!statsChartManager.highlighted()){
                     statsChartManager.highlightGenome();
                 }else{
-                    statsChartManager.deHighlightGenome();
+                    statsChartManager.deHighlightAll();
                     animalStatsTracker.highlightTracked();
                 }
             }

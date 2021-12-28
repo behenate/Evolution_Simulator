@@ -1,9 +1,10 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.Utils;
-import agh.ics.oop.objects.AbstractWorldMap;
-import agh.ics.oop.objects.RolledMap;
-import agh.ics.oop.objects.WallMap;
+import agh.ics.oop.maps.AbstractWorldMap;
+import agh.ics.oop.maps.RolledMap;
+import agh.ics.oop.maps.WallMap;
+import agh.ics.oop.simulation.Simulation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;

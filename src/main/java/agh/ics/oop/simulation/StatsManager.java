@@ -1,8 +1,8 @@
-package agh.ics.oop.gui;
+package agh.ics.oop.simulation;
 
 import agh.ics.oop.Utils;
 import agh.ics.oop.dataTypes.Genome;
-import agh.ics.oop.objects.AbstractWorldMap;
+import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.objects.Animal;
 import agh.ics.oop.objects.IMapElement;
 import com.opencsv.CSVWriter;
@@ -175,6 +175,7 @@ public class StatsManager {
 
 //    Highlights all the animals with dominant genome
     public void highlightGenome(){
+        deHighlightAll();
         this.genomeHighlighted = true;
         for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
             for (IMapElement element:elements) {
@@ -189,17 +190,15 @@ public class StatsManager {
     }
 
 //    Disables the highlight on animals with dominant genome
-    public void deHighlightGenome(){
+    public void deHighlightAll(){
         this.genomeHighlighted = false;
         for (ArrayList<IMapElement> elements: map.getMapElements().values()) {
             for (IMapElement element:elements) {
                 if (element instanceof Animal animal){
-                    if (animal.getGenome().equals(dominantGenome))
-                        animal.deHighlight();
+                    animal.deHighlight();
                 }
             }
         }
-        System.out.println("Unhighlight!");
     }
 
     public void addPlantCount(int number){

@@ -1,10 +1,11 @@
-package agh.ics.oop.gui;
+package agh.ics.oop.simulation;
 
 import agh.ics.oop.Utils;
 import agh.ics.oop.dataTypes.LinkedImageView;
-import agh.ics.oop.objects.AbstractWorldMap;
+import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.objects.Animal;
 import agh.ics.oop.objects.IMapElement;
+import agh.ics.oop.simulation.Simulation;
 import javafx.event.EventTarget;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

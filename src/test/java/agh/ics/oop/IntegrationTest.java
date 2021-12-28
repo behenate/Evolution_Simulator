@@ -1,11 +1,10 @@
 package agh.ics.oop;
 import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.Vector2d;
-import agh.ics.oop.gui.StatsManager;
 import agh.ics.oop.objects.Animal;
 import agh.ics.oop.objects.Grass;
 import agh.ics.oop.objects.IMapElement;
-import agh.ics.oop.objects.WallMap;
+import agh.ics.oop.maps.WallMap;
 import agh.ics.oop.simulation.SimulationEngine;
 import org.junit.jupiter.api.Test;
 

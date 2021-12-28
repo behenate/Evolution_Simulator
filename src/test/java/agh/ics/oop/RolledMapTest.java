@@ -3,7 +3,7 @@ package agh.ics.oop;
 import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.objects.Animal;
-import agh.ics.oop.objects.RolledMap;
+import agh.ics.oop.maps.RolledMap;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

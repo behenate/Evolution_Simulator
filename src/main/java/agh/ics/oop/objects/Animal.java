@@ -5,6 +5,7 @@ import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.LinkedImageView;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.gui.GuiElementBox;
+import agh.ics.oop.maps.AbstractWorldMap;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class Animal extends AbstractWorldMapElement {
         this.mother = mother;
 
         mapDirection = Utils.getRandomNumber(0, 8);
-        this.guiElementBox = new GuiElementBox(this, map.gridCellSize);
+        this.guiElementBox = new GuiElementBox(this, map.getGridCellSize());
 
         int[] genomeArr = new int[32];
 

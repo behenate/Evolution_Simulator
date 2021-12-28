@@ -1,6 +1,7 @@
-package agh.ics.oop.objects;
+package agh.ics.oop.maps;
 
 import agh.ics.oop.dataTypes.Vector2d;
+import agh.ics.oop.objects.Animal;
 
 /**
  * The interface responsible for interacting with the map of the world.

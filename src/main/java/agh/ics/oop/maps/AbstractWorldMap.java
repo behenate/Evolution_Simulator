@@ -1,9 +1,12 @@
-package agh.ics.oop.objects;
+package agh.ics.oop.maps;
 
 import agh.ics.oop.Utils;
 import agh.ics.oop.dataTypes.CustomHashMap;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.gui.GuiElementBox;
+import agh.ics.oop.objects.Animal;
+import agh.ics.oop.objects.Grass;
+import agh.ics.oop.objects.IMapElement;
 import agh.ics.oop.simulation.IPositionChangeObserver;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
@@ -202,5 +205,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return this.height;
     }
     public String getName(){return this.name;}
+    public int getGridCellSize(){return this.gridCellSize;}
 
 }

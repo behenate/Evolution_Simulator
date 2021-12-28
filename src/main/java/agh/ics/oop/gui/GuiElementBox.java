@@ -51,7 +51,7 @@ public class GuiElementBox {
     }
 //    Highlights the element by changing the background
     public void highlight(){
-        mainContainer.setStyle("-fx-background-color: #a7d2fc");
+        mainContainer.setStyle("-fx-background-color: #fce8a7");
     }
     public void deHighlight(){
         mainContainer.setStyle("-fx-background-color: rgba(255,255,255,0)");

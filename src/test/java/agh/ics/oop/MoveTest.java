@@ -2,7 +2,7 @@ package agh.ics.oop;
 import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.Vector2d;
 import agh.ics.oop.objects.Animal;
-import agh.ics.oop.objects.WallMap;
+import agh.ics.oop.maps.WallMap;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

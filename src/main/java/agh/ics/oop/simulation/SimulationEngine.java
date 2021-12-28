@@ -4,8 +4,7 @@ import agh.ics.oop.Utils;
 import agh.ics.oop.dataTypes.CustomHashMap;
 import agh.ics.oop.dataTypes.Genome;
 import agh.ics.oop.dataTypes.Vector2d;
-import agh.ics.oop.gui.AnimalStatsTracker;
-import agh.ics.oop.gui.StatsManager;
+import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.objects.*;
 
 import java.util.ArrayList;
