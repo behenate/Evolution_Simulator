@@ -22,7 +22,7 @@ public class Simulation implements IMapChangeObserver {
     private final AbstractWorldMap map;
     private final SimulationEngine engine;
     private final AnimalStatsTracker animalStatsTracker;
-    private final StatsManager statsChartManager;
+    private final StatsManager statsManager;
     private final GridPane gridPane = new GridPane();
     private final Label magicSpawnsLabel;
     private final Thread engineThread;
@@ -35,7 +35,10 @@ public class Simulation implements IMapChangeObserver {
         this.map = map;
         this.type = type;
 //        Create new simulation statisticts  collection tool and animal tracking tool
-        statsChartManager = new StatsManager(map);
+        if (type == 0)
+            statsManager = new StatsManager(map, "Walled Map Stats");
+        else
+            statsManager = new StatsManager(map, "Rolled Map Stats");
         animalStatsTracker = new AnimalStatsTracker(this);
 //        Create new simulation engine
         this.engine = new SimulationEngine(map,
@@ -44,7 +47,7 @@ public class Simulation implements IMapChangeObserver {
                 startGrass,
                 startEnergy,
                 moveCost,
-                plantEnergy, isMagical, statsChartManager, animalStatsTracker);
+                plantEnergy, isMagical, statsManager, animalStatsTracker);
 
         engine.addObserver(this);
         engineThread = new Thread(engine);
@@ -79,7 +82,7 @@ public class Simulation implements IMapChangeObserver {
                 saveButton.setVisible(true);
                 pauseButton.setText("Continue");
             }else{
-                statsChartManager.deHighlightAll();
+                statsManager.deHighlightAll();
                 animalStatsTracker.highlightTracked();
                 engine.resume();
                 genomeHighlightButton.setVisible(false);
@@ -94,10 +97,10 @@ public class Simulation implements IMapChangeObserver {
         genomeHighlightButton.setVisible(false);
         genomeHighlightButton.setOnAction((e) ->{
             if (engine.isSuspended()){
-                if (!statsChartManager.highlighted()){
-                    statsChartManager.highlightGenome();
+                if (!statsManager.highlighted()){
+                    statsManager.highlightGenome();
                 }else{
-                    statsChartManager.deHighlightAll();
+                    statsManager.deHighlightAll();
                     animalStatsTracker.highlightTracked();
                 }
             }
@@ -108,7 +111,7 @@ public class Simulation implements IMapChangeObserver {
         saveButton.setVisible(false);
         saveButton.setOnAction((e)->{
             if (engine.isSuspended()){
-                statsChartManager.saveToFile();
+                statsManager.saveToFile();
             }
         });
 //      Create a container for the buttons
@@ -123,9 +126,9 @@ public class Simulation implements IMapChangeObserver {
         }
 //        The simulation on the left has the stats on the left, the one on the right has them on the right
         if (type == 0){
-            mainContainer = new HBox(statsChartManager.getUI(), mapAndStatsContainer);
+            mainContainer = new HBox(statsManager.getUI(), mapAndStatsContainer);
         }else{
-            mainContainer = new HBox(mapAndStatsContainer, statsChartManager.getUI());
+            mainContainer = new HBox(mapAndStatsContainer, statsManager.getUI());
         }
         mapAndStatsContainer.setAlignment(Pos.CENTER);
         map.renderGrid(gridPane);

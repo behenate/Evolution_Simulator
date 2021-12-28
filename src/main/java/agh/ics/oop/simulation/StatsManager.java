@@ -81,16 +81,16 @@ public class StatsManager {
     private float childrenCountSum = 0;
 
     private boolean genomeHighlighted = false;
-    public StatsManager(AbstractWorldMap map){
+    public StatsManager(AbstractWorldMap map, String title){
         String filepath = map.getName() + "-Stats-" + System.currentTimeMillis() / 1000 + ".csv";
         outputFile = new File(filepath);
         this.map = map;
         statsHist.add(new String[]{"Animals No.", "Number of plants", "Average Energy", "Average Lifespan", "Number Of Children"});
-        UISetup();
+        UISetup(title);
     }
 
 //    Sets up the charts and dominant genome UI elements
-    private void UISetup(){
+    private void UISetup(String title){
         for (StatsChart chart:allCharts) {
             chartsContainer.getChildren().add(chart.getUI());
         }
@@ -99,7 +99,7 @@ public class StatsManager {
         mainContainer.setPrefWidth(Utils.windowWidth*0.16);
         mainContainer.setAlignment(Pos.CENTER);
 
-        Text label = new Text("Whole simulation \n stats tracker");
+        Text label = new Text(title);
         label.setTextAlignment(TextAlignment.CENTER);
         label.setFont(new Font(Utils.windowWidth * 0.013));
 

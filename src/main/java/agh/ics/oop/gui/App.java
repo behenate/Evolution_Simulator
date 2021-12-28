@@ -36,7 +36,7 @@ public class App extends Application {
         scene = new Scene(mainContainer, 1280, 720);
 
         primaryStage.setScene(scene);
-//        primaryStage.setMaximized(true);
+        primaryStage.setMaximized(true);
         primaryStage.show();
 
 //        Close the entire app when clicking the window "x"
