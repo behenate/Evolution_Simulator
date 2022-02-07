@@ -1,37 +1,56 @@
-# Dżem Dobry
+# Evolution Simulator
 
-### Tutaj znajduje się rozwiązanie projektu 1 z programowania obiektowego wykonane przeze mnie, Wojciecha Dróżdż. Proszę nie kraść, można tylko patrzeć i podziwiać jakie ładne i fajne i w ogóle. 
+This application was created for Object Oriented Programming course on AGH UST.  The entire project has been written in Java.
 
-![Chemistry dog no idea - i have no idea what i'm doing](https://memegenerator.net/img/instances/50289227.jpg)
+The main goal is to create an animal, which can survive and reproduce based on 32 numbers ranging from 0-7.
 
-<img src="https://external-preview.redd.it/eZ6Uvn46UfbeOPoleKa36-DjT3Kp8AIf80NzKN1g_bg.jpg?auto=webp&s=71af0dbeca43f7bf63da7355c4f974c53e7e48b6" alt="Learn How To Build a Bot That Sends Dog Images: programming" style="zoom:150%;" />
+### General rules
 
-<img src="https://i.pinimg.com/originals/b2/a4/f2/b2a4f2d59355ee41e0df6dc6ceeec2d9.jpg" alt="imgur.com | Computer science, Computer projects, Science homework" style="zoom:80%;" />
+Each animal is placed on a virtual 2D map represented by a grid. In order to survive the animal has to have energy level greater than 0. If the energy level is above 50% of the initial energy and the animal meets another animal, they reproduce, the resulting child has its genome generated based on genomes and energy levels of the parents. Each move and reproduction costs the animal energy, in order to replenish its energy the animal has to eat food placed on the map.
 
-![Video captures a golden retriever who can&#39;t tear eyes away from a clip of a  SQUIRREL | Daily Mail Online](https://i.dailymail.co.uk/i/pix/2016/08/03/17/36D77E3800000578-0-image-a-1_1470243416975.jpg)
+### Genome
 
-<img src="https://d33wubrfki0l68.cloudfront.net/f2793d2266494da4621fe60be275ea15eea91330/bb2f7/static/images/2012/hello-this-is-dog.png" alt="Randall Degges - Dogs Are Great Programming Companions" style="zoom: 150%;" />
+Each animal has its genome. It consists of 32 numbers from 0 to 7. Each number represents a movement direction on the map 0 is move foreward, 1 is rotate 45 deg, 2 is rotate 90 deg, etc. Each day based a move is randomly chosen for the animal based on its genome. For example, an animal with genome consisting of 32 zeroes would move forwards until it dies.
+
+### Maps
+
+There are two types of maps for the simulation
+
+- Rolled map - When an animal runs into the edge of the map and tries to walk into the wall it gets teleported onto the other side.
+- Walled map - When an animal runs into the edge of the map and tries to walk into the wall it gets stopped until it changes direction.
+
+### Configuration
+
+The simulation can be configured before launch. Below is a screenshot of possible options.
+
+<img src="desc_imgs\config.jpg" alt="config" style="zoom:60%;" />
+
+### Functionality
+
+Besides running the simulation the app also can:
+
+- Graph the relevant simulation statistics in real time (graphs shown on the left and the right of the screen)
+- Select a specific animal by clicking on it, the statistics of the chosen animal will be displayed in the screen below the map
+- Show animals with dominant genome - shows all animals that are genetic clones of each other and share the same genome.
+- Save simulation to file - Saves the relevant simulation statistics shown on graphs to a .csv file
+
+### Screenshot
+
+Below is a screenshot of the application running 
+
+
+
+![scr1](C:\Users\behen\Documents\Studia\Obiektowe\Kod\Obiektowe_Projekt_1\desc_imgs\scr1.jpg)
+
+
+
+
+
+### A cute doggo meme for your enjoyment:
+
+
 
 ![img](https://i.imgur.com/yc0V1JP.jpeg)
-
-![Golden Retriever Service Dog Works in Lab with Owner | PEOPLE.com](https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F20%2F2021%2F03%2F05%2Fscience-pup-in-644774-2000.jpg&q=85)
-
-![16 Pictures Of The I Have No Idea What I&#39;m Doing Dog Who Still Has No Idea  What He&#39;s Doing](https://theawesomedaily.com/wp-content/uploads/2014/10/i-have-no-idea-what-im-doing-dog-feat-1.jpg)
-
-![Golden Retriever In Jaipur | Golden Retriever Puppies For Sale Near Me](https://dogsshop.in/wp-content/uploads/2021/07/golden-reteiever.jpg)
-
-![Samoyed Dog Breed Information &amp; Characteristics | Daily Paws](https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F47%2F2021%2F02%2F18%2Fsamoyed-two-puppies-grass-201760029.jpg)
-
-
-
-![Border collie - wesoły pies z dużym temperamentem [Charakter, pielęgnacja,  opinie]](https://bi.im-g.pl/im/88/dc/19/z27116424Q,Border-collie---wesoly-pies-z-duzym-temperamentem-.jpg)
-
-
-
-
-
-
-### Uwaga! Każdy obejrzany piesek oznacza +1 do oceny końcowej z projektu :)) 
 
 
 

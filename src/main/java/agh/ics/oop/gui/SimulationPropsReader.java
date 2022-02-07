@@ -3,6 +3,7 @@ package agh.ics.oop.gui;
 import agh.ics.oop.Utils;
 import agh.ics.oop.maps.AbstractWorldMap;
 import agh.ics.oop.maps.RolledMap;
+import agh.ics.oop.maps.WallMap;
 import agh.ics.oop.simulation.Simulation;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -118,12 +119,22 @@ public class SimulationPropsReader {
 
     //      Create a simlation of the specified type
     private Simulation createSimulation(int type) {
-        AbstractWorldMap map = new RolledMap(
+        AbstractWorldMap map;
+        if (type == 1){map = new RolledMap(
                 (int) mapWidth.getValue(),
                 (int) mapHeight.getValue(),
                 jungleRatio.getValue(),
                 (int) (Utils.windowWidth * 0.3)
         );
+        }
+        else{
+            map = new WallMap(
+                    (int) mapWidth.getValue(),
+                    (int) mapHeight.getValue(),
+                    jungleRatio.getValue(),
+                    (int) (Utils.windowWidth * 0.3)
+            );
+        }
         boolean isMagical = (isMagicalRoll.selectedProperty().get() && type ==1 || isMagicalWall.selectedProperty().get() && type == 0);
 
         return new Simulation(
