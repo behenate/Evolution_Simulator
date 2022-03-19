@@ -39,8 +39,7 @@ Besides running the simulation the app also can:
 Below is a screenshot of the application running 
 
 
-
-![scr1](C:\Users\behen\Documents\Studia\Obiektowe\Kod\Obiektowe_Projekt_1\desc_imgs\scr1.jpg)
+<img src="desc_imgs\scr1.jpg" alt="config" style="zoom:80%;" />
 
 
 
