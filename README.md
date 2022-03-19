@@ -34,12 +34,9 @@ Besides running the simulation the app also can:
 - Show animals with dominant genome - shows all animals that are genetic clones of each other and share the same genome.
 - Save simulation to file - Saves the relevant simulation statistics shown on graphs to a .csv file
 
-### Screenshot
+### Demo gif
 
-Below is a screenshot of the application running 
-
-
-<img src="desc_imgs\scr1.jpg" alt="config" style="zoom:80%;" />
+Below is a gif showing functionality of the app<img src="desc_imgs\dem" alt="config" style="zoom:80%;" />
 
 
 
