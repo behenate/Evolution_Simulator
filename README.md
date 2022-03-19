@@ -46,11 +46,6 @@ The application was created based on requirements posted on this page:
 
 https://github.com/apohllo/obiektowe-lab/tree/master/proj1
 
-### A cute doggo meme for your enjoyment:
-
-
-
-![img](https://i.imgur.com/yc0V1JP.jpeg)
 
 
 
