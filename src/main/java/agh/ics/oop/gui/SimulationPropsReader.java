@@ -124,7 +124,7 @@ public class SimulationPropsReader {
                 (int) mapWidth.getValue(),
                 (int) mapHeight.getValue(),
                 jungleRatio.getValue(),
-                (int) (Utils.windowWidth * 0.3)
+                (int) (Utils.windowWidth * 0.285)
         );
         }
         else{
@@ -132,7 +132,7 @@ public class SimulationPropsReader {
                     (int) mapWidth.getValue(),
                     (int) mapHeight.getValue(),
                     jungleRatio.getValue(),
-                    (int) (Utils.windowWidth * 0.3)
+                    (int) (Utils.windowWidth * 0.285)
             );
         }
         boolean isMagical = (isMagicalRoll.selectedProperty().get() && type ==1 || isMagicalWall.selectedProperty().get() && type == 0);
