@@ -36,7 +36,7 @@ Besides running the simulation the app also can:
 
 ### Demo gif
 
-Below is a gif showing functionality of the app<img src="desc_imgs\dem" alt="config" style="zoom:80%;" />
+Below is a gif showing functionality of the app<img src="desc_imgs\demo.gif" alt="config" style="zoom:80%;" />
 
 
 
